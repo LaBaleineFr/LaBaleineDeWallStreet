@@ -88,43 +88,26 @@ def conv(boo2):
 
     print(boo2)
     
-    valBtc = btcrecup(0)
-    valBtcE = btcrecup(1)
-    print(valBtcE)
+    valBtc = btcrecup(1)
     print(valBtc)
-    try:  #si le nombre + la devise
+    try:
         float(boo2[0])
         final=polorecup(boo2[1],0)
 
-        if(boo2[1].upper()=="BTC"):
-            final=float(valBtc)*float(boo2[0])
-            final2=float(valBtcE)*float(boo2[0])
-            return ("```"+str(boo2[0])+" "+str(boo2[1]).upper()+" valent "+ str("%.2f" %final)+"$ ou "+str("%.2f" %final2)+"€```")
-
         if(final==0):
             final=bittrecup(boo2[1],0)
-        if(final!=0):    
-            final2=(float(valBtcE)*(float(final)/float(valBtc)))*float(boo2[0])
-            final=float(final)*float(boo2[0])
-            final = "```"+str(boo2[0])+" "+str(boo2[1]).upper()+" valent "+ str("%.2f" %final)+"$ ou "+str("%.2f" %final2)+"€  ("+str("%.4f" %(final/valBtc))+"฿)```"
 
-    except : #si la devise + le nombre
+        final=float(final)*float(boo2[0])
+        final = "```"+str(boo2[0])+" "+str(boo2[1]).upper()+" valent "+ str("%.2f" %final)+"$```"
+
+    except :
         float(boo2[1])
-
-        if(boo2[0].upper()=="BTC"):
-            final=float(valBtc)*float(boo2[1])
-            final2=float(valBtcE)*float(boo2[1])
-            print(1)
-            return ("```"+str(boo2[1])+" "+str(boo2[0]).upper()+" valent "+ str("%.2f" %final)+"$ ou "+str("%.2f" %final2)+"€```")
-        
         final=polorecup(boo2[0],0)
         if(final==0):
             final=bittrecup(boo2[0],0)
-            
-        if(final!=0):
-            final2=(float(valBtcE)*(float(final)/float(valBtc)))*float(boo2[1])
-            final=float(final)*float(boo2[1])
-            final ="```"+str(boo2[1])+" "+str(boo2[0]).upper()+" valent "+  str("%.2f" %final)+"$ ou "+str("%.2f" %final2)+"€  ("+str("%.4f" %(final/valBtc))+"฿)```"
+        
+        final=float(final)*float(boo2[1])
+        final ="```"+str(boo2[1])+" "+str(boo2[0]).upper()+" valent "+  str("%.2f" %final)+"$```"
 
     return final
 
@@ -213,10 +196,9 @@ def polorecup(boo4,all):
     valBtc = btcrecup(0)
 
     print(market)
-    
     if(market in data):
         if(all):
-            return("```"+boo4.upper()+"   "+data[market]["last"]+"฿ ("+str("%.2f" %(float(data[market]["percentChange"])*100))+"%) $"+(str("%.5f" %(float(data[market]["last"])*(float(valBtc)))))+"   (Poloniex)"+"```")
+            return("```"+boo4.upper()+"   "+data[market]["last"]+" ("+str("%.2f" %(float(data[market]["percentChange"])*100))+"%) $"+(str("%.5f" %(float(data[market]["last"])*(float(valBtc)))))+"   (Poloniex)"+"```")
         else:
             return(float(data[market]["last"])*valBtc)
     else:
@@ -247,7 +229,7 @@ def bittrecup(boo4,all):
 
             
 
-            return("```"+boo4.upper()+"   "+str(data["result"][0]["Last"])+"฿ ("+str("%.2f" %percent2)+"%) $"+str("%.5f" %(data["result"][0]["Last"]*float(valBtc)))+"   (Bittrex)"+"```")
+            return("```"+boo4.upper()+"   "+str(data["result"][0]["Last"])+" ("+str("%.2f" %percent2)+"%) $"+str("%.5f" %(data["result"][0]["Last"]*float(valBtc)))+"   (Bittrex)"+"```")
         else:
             return(data["result"][0]["Last"]*valBtc)
     else:
