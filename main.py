@@ -1,12 +1,14 @@
 import requests
-import os
 import json
 import getopt
 import discord
+import math
 
 client = discord.Client()
 
-token = ""
+token = "MzAyODMyMTY4NzY4MzcyNzM2.C9PR-A.89-GgiT9TbphCPgIgGTFgYVlEsk"
+
+
 
 class switch(object):
 
@@ -18,6 +20,12 @@ class switch(object):
 def case(*args):
     return any((arg == switch.value for arg in args))
 
+
+def calc(boo):
+
+    boo=boo.split()
+    boo.remove("calc")
+    return(eval(boo[0]))
 
 
 def traitement(boo): #ICI
@@ -216,7 +224,7 @@ def polorecup(boo4,all):
     
     if(market in data):
         if(all):
-            return("```"+boo4.upper()+"   "+data[market]["last"]+"฿ ("+str("%.2f" %(float(data[market]["percentChange"])*100))+"%) $"+(str("%.5f" %(float(data[market]["last"])*(float(valBtc)))))+"   (Poloniex)"+"```")
+            return("```"+boo4.upper()+"   "+data[market]["last"]+"฿ ("+str("%.2f" %(float(data[market]["percentChange"])*100))+"%) $"+(str("%.5f" %(float(data[market]["last"])*(float(valBtc)))))+" (Poloniex)"+"```")
         else:
             return(float(data[market]["last"])*valBtc)
     else:
@@ -247,7 +255,7 @@ def bittrecup(boo4,all):
 
             
 
-            return("```"+boo4.upper()+"   "+str(data["result"][0]["Last"])+"฿ ("+str("%.2f" %percent2)+"%) $"+str("%.5f" %(data["result"][0]["Last"]*float(valBtc)))+"   (Bittrex)"+"```")
+            return("```"+boo4.upper()+"   "+str(data["result"][0]["Last"])+"฿ ("+str("%.2f" %percent2)+"%) $"+str("%.5f" %(data["result"][0]["Last"]*float(valBtc)))+"  (Bittrex)"+"```")
         else:
             return(data["result"][0]["Last"]*valBtc)
     else:
@@ -347,7 +355,11 @@ async def on_message(message):
 
         await client.send_message(message.channel, retour)
 
+    if message.content.startswith('calc'):
 
+        retour=calc(message.content)
+        
+        await client.send_message(message.channel,"```"+ ((message.content).split())[1]+ " = " + str("%.2f" %retour)+"```")
 
 @client.event
 async def on_ready():
@@ -360,5 +372,9 @@ async def on_ready():
 
 try:
     client.run(token)
+
 except:
     print("No internet Connection")
+	
+	
+
