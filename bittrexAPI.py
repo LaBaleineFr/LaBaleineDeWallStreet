@@ -6,7 +6,7 @@ import discord
 
 client = discord.Client()
 
-token = "MzAyODMyMTY4NzY4MzcyNzM2.C9PR-A.89-GgiT9TbphCPgIgGTFgYVlEsk"
+token = ""
 
 class switch(object):
 
