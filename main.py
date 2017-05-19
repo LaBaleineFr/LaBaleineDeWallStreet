@@ -3,11 +3,13 @@ import json
 import getopt
 import discord
 import math
+import time
 
 client = discord.Client()
 
 token = ""
 
+verif = 0
 
 
 class switch(object):
@@ -32,6 +34,7 @@ def traitement(boo): #ICI
 
     d = 0
 
+    print(boo)
     print("Contrôle mot 1")
     if(len(boo.split())>1):
         while switch((boo.split()[0]).lower()):
@@ -166,7 +169,7 @@ def poloniex(boo3):
     print("Polo Selector")
 
     i = 0
-    final = ["","","","","",""]
+    final = ["","","","","","","","","","","","","","","",""]
 
     boo3.remove("price")
 
@@ -190,7 +193,7 @@ def lost(boo3):
     print("Mot 2 inconnu")
 
     i = 0
-    final = ["","","","","",""]
+    final = ["","","","","","","","","","","","","","","",""]
     boo3.remove("price")
 
     nbreCase = len(boo3)
@@ -321,7 +324,7 @@ async def on_message(message):
 
         while boucle > i :
 
-            if(retour[i]!=0):
+            if(retour[i]!=""):
                 await client.send_message(message.channel, retour[i])
 
             i += 1
@@ -342,7 +345,7 @@ async def on_message(message):
 
         while boucle > i :
 
-            if(retour[i]!=0):
+            if(retour[i]!=""):
                 await client.send_message(message.channel, retour[i])
 
             i += 1
@@ -368,13 +371,17 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-    
+    verif=1
 
-try:
-    client.run(token)
 
-except:
-    print("No internet Connection")
+client.run(token)
+        
+
+
+
+        
+        
+
 	
 	
 
