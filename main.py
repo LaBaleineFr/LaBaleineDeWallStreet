@@ -204,7 +204,7 @@ def lost(boo3):
 
         final[i]=polorecup(boo3[i],1)
 
-        if(final[i]==0):
+        if(final[i]==""):
             final[i]=bittrecup(boo3[i],1)
 
         i = 1 + i
@@ -375,4 +375,6 @@ async def on_ready():
 
 
 client.run(token)
-   
+
+	
+
