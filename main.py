@@ -231,7 +231,7 @@ def polorecup(boo4,all):
         else:
             return(float(data[market]["last"])*valBtc)
     else:
-        return 0
+        return ""
 
 
 
@@ -262,7 +262,7 @@ def bittrecup(boo4,all):
         else:
             return(data["result"][0]["Last"]*valBtc)
     else:
-        return 0
+        return ""
 
 def btcrecup(euro):
 
@@ -279,7 +279,7 @@ def btcrecup(euro):
         return (float(data["last"]))
 
     else:
-        return(0)
+        return ""
 
 
 def renvoie(boo5):
@@ -375,13 +375,4 @@ async def on_ready():
 
 
 client.run(token)
-        
-
-
-
-        
-        
-
-	
-	
-
+   
