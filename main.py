@@ -4,6 +4,10 @@ import getopt
 import discord
 import math
 import time
+import matplotlib.pyplot as plt
+from matplotlib.finance import candlestick2_ochl
+import pandas as pd
+
 
 client = discord.Client()
 
@@ -49,6 +53,9 @@ def traitement(boo): #ICI
                 break
             if case('volume'):
                 print("soon")
+                break
+            if case('chart'):
+                d = chart(boo.split()[1])
                 break
             break
 
@@ -204,7 +211,7 @@ def lost(boo3):
 
         final[i]=polorecup(boo3[i],1)
 
-        if(final[i]==""):
+        if(final[i]==0):
             final[i]=bittrecup(boo3[i],1)
 
         i = 1 + i
@@ -214,14 +221,22 @@ def lost(boo3):
 
 def polorecup(boo4,all):
 
+    market="BTC_"+boo4.upper()
+
+    valBtc = btcrecup(0)
+    valBtcE = btcrecup(1)
+
+    if(market=="BTC_BTC"):
+        value = "```1 BTC vaut "+str(valBtc)+"$"+" ou "+str(valBtcE)+"€```"
+        return(value)
+
     url="https://poloniex.com/public?command=returnTicker"
     print("Poloniex Récup")
 
     content=requests.get(url)
     data=content.json()
-    market="BTC_"+boo4.upper()
 
-    valBtc = btcrecup(0)
+
 
     print(market)
     
@@ -231,7 +246,8 @@ def polorecup(boo4,all):
         else:
             return(float(data[market]["last"])*valBtc)
     else:
-        return ""
+        return 0
+
 
 
 
@@ -262,7 +278,7 @@ def bittrecup(boo4,all):
         else:
             return(data["result"][0]["Last"]*valBtc)
     else:
-        return ""
+        return 0
 
 def btcrecup(euro):
 
@@ -279,7 +295,7 @@ def btcrecup(euro):
         return (float(data["last"]))
 
     else:
-        return ""
+        return(0)
 
 
 def renvoie(boo5):
@@ -296,18 +312,34 @@ def renvoie(boo5):
         i += 1
 
 
+def chart(strcur):
 
+    end = round(time.time())
+    start = end - 1 * 86400
+
+    cur = strcur.upper()
+    url="https://poloniex.com/public?command=returnChartData&currencyPair=BTC_"+cur+"&start="+str(start)+"&end="+str(end)+"&period=1800"
+    content = requests.get(url)
+    data = content.json()
+   
+    if(1):
+        df = pd.DataFrame.from_dict(data)
+        fig, ax = plt.subplots()
+        ax.get_xaxis().set_visible(True)
+        candlestick2_ochl(ax, df['open'], df['close'], df['high'], df['low'], width=0.6, colorup='g',
+                                colordown='r',
+                                alpha=0.75)
+        fig.savefig(cur + ".png")
+        return cur + ".png"
+    else:
+        print("error")
+        return ""
+    
 
 
 @client.event
 async def on_message(message):
 
-    if message.content.startswith('price btc'):
-
-
-        boo = "```1 BTC vaut "+str(btcrecup(0))+"$"+" ou "+str(btcrecup(1))+"€```"
-        
-        await client.send_message(message.channel, boo)    
 
     if message.content.startswith('price'):
 
@@ -364,6 +396,15 @@ async def on_message(message):
         
         await client.send_message(message.channel,"```"+ ((message.content).split())[1]+ " = " + str("%.2f" %retour)+"```")
 
+    if message.content.startswith('chart'):
+        # https: // poloniex.com / public?command = returnChartData & currencyPair = BTC_XMR & start = 1405699200 & end = 9999999999 & period = 14400
+        retour = traitement(message.content)
+        if (retour!=""):
+            await client.send_file(message.channel,retour )
+        # await client.send_message(message.channel, chart('etc'))
+
+
+
 @client.event
 async def on_ready():
     
@@ -375,6 +416,3 @@ async def on_ready():
 
 
 client.run(token)
-
-	
-
