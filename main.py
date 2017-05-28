@@ -221,22 +221,14 @@ def lost(boo3):
 
 def polorecup(boo4,all):
 
-    market="BTC_"+boo4.upper()
-
-    valBtc = btcrecup(0)
-    valBtcE = btcrecup(1)
-
-    if(market=="BTC_BTC"):
-        value = "```1 BTC vaut "+str(valBtc)+"$"+" ou "+str(valBtcE)+"€```"
-        return(value)
-
     url="https://poloniex.com/public?command=returnTicker"
     print("Poloniex Récup")
 
     content=requests.get(url)
     data=content.json()
+    market="BTC_"+boo4.upper()
 
-
+    valBtc = btcrecup(0)
 
     print(market)
     
@@ -247,7 +239,6 @@ def polorecup(boo4,all):
             return(float(data[market]["last"])*valBtc)
     else:
         return 0
-
 
 
 
@@ -321,8 +312,9 @@ def chart(strcur):
     url="https://poloniex.com/public?command=returnChartData&currencyPair=BTC_"+cur+"&start="+str(start)+"&end="+str(end)+"&period=1800"
     content = requests.get(url)
     data = content.json()
-   
-    if(1):
+
+    
+    if not('error' in data):
         df = pd.DataFrame.from_dict(data)
         fig, ax = plt.subplots()
         ax.get_xaxis().set_visible(True)
@@ -340,6 +332,12 @@ def chart(strcur):
 @client.event
 async def on_message(message):
 
+    if message.content.startswith('price btc'):
+
+
+        boo = "```1 BTC vaut "+str(btcrecup(0))+"$"+" ou "+str(btcrecup(1))+"€```"
+        
+        await client.send_message(message.channel, boo)    
 
     if message.content.startswith('price'):
 
