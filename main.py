@@ -14,7 +14,7 @@ client = discord.Client()
 token = ""
 
 verif = 0
-
+plt.style.use('ggplot')
 
 class switch(object):
 
@@ -306,23 +306,31 @@ def renvoie(boo5):
 def chart(strcur):
 
     end = round(time.time())
+    # 24 hours of data, 30 min periods
     start = end - 1 * 86400
-
     cur = strcur.upper()
-    url="https://poloniex.com/public?command=returnChartData&currencyPair=BTC_"+cur+"&start="+str(start)+"&end="+str(end)+"&period=1800"
+    url = "https://poloniex.com/public?command=returnChartData&currencyPair=BTC_"+cur+"&start="+str(start)+"&end="+str(end)+"&period=1800"
     content = requests.get(url)
     data = content.json()
-
-    
     if not('error' in data):
         df = pd.DataFrame.from_dict(data)
+        df['date'] = pd.to_datetime(df['date'], unit='s')
         fig, ax = plt.subplots()
-        ax.get_xaxis().set_visible(True)
-        candlestick2_ochl(ax, df['open'], df['close'], df['high'], df['low'], width=0.6, colorup='g',
+        axes = [ax, ax.twinx().twiny()]
+        df.set_index(['date'], inplace=True)
+        candlestick2_ochl(axes[1], df['open'], df['close'], df['high'], df['low'], width=0.6, colorup='g',
                                 colordown='r',
                                 alpha=0.75)
-        fig.savefig(cur + ".png")
-        return cur + ".png"
+        df['volume'].plot(ax=axes[0], alpha=0.6)
+        # Visual ajustments
+        axes[0].yaxis.grid(False)
+        axes[0].xaxis.grid(b=True, which='both')
+        axes[0].set_xlabel('')
+        axes[1].get_xaxis().set_visible(False)
+        plt.tight_layout()
+
+        fig.savefig(cur + "_chart.png")
+        return cur + "_chart.png"
     else:
         print("error")
         return ""
