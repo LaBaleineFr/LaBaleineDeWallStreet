@@ -57,6 +57,9 @@ def traitement(boo): #ICI
             if case('chart'):
                 d = chart(boo.split()[1])
                 break
+            if case('book'):
+                d = book(boo.split()[1])
+                break
             break
 
     return d
@@ -344,7 +347,40 @@ def chart(strcur):
         print("error")
         return ""
     
+def book(strcur):
+    cur = strcur.upper()
+    # reduce depth variable for a more focused visualization around center
+    url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_" + cur + "&depth=20"
+    content = requests.get(url)
+    data = content.json()
+    if not ('error' in data):
+        fig, ax = plt.subplots()
+        df_asks = pd.DataFrame.from_dict(data['asks'])
+        df_asks = df_asks.rename(columns={0: 'price', 1: 'ask'})
+        df_asks.set_index(['price'], inplace=True)
+        df_bids = pd.DataFrame.from_dict(data['bids'])
+        df_bids = df_bids.rename(columns={0: 'price', 1: 'bid'})
+        df_bids.set_index('price', inplace=True)
+        df_asks = df_asks.cumsum()
+        df_bids["bid"] = df_bids['bid'].cumsum()
+        df_asks = df_asks.join(df_bids, how='outer')
 
+        # better visualization
+        if df_asks['ask'].max() > df_asks['bid'].max():
+            df_asks['ask'].plot(ax=ax, color='r', kind='area', alpha=0.6)
+            df_asks['bid'].plot(ax=ax, color='g', kind='area', alpha=0.6)
+        else:
+            df_asks['bid'].plot(ax=ax, color='g', kind='area', alpha=0.6)
+            df_asks['ask'].plot(ax=ax, color='r', kind='area', alpha=0.6)
+        ax.set_xlabel('')
+        plt.setp(ax.get_xticklabels(), rotation=-30, horizontalalignment='left')
+        plt.tight_layout()
+
+        fig.savefig(cur + "_book.png")
+        return cur + "_book.png"
+    else:
+        print("error")
+        return ""
 
 @client.event
 async def on_message(message):
@@ -412,6 +448,10 @@ async def on_message(message):
             await client.send_file(message.channel,retour )
         # await client.send_message(message.channel, chart('etc'))
 
+    if message.content.startswith('book'):
+        retour = traitement(message.content)
+        if (retour!=""):
+            await client.send_file(message.channel,retour )
 
 
 @client.event
