@@ -11,7 +11,7 @@ import pandas as pd
 
 client = discord.Client()
 
-token = "MzAyODMyMTY4NzY4MzcyNzM2.C9PR-A.89-GgiT9TbphCPgIgGTFgYVlEsk"
+token = ""
 
 verif = 0
 plt.style.use('ggplot')
