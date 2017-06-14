@@ -4,6 +4,8 @@ import getopt
 import discord
 import math
 import time
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.finance import candlestick2_ochl
 import pandas as pd
