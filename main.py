@@ -11,7 +11,7 @@ import os
 
 client = discord.Client()
 
-token = ""
+token = os.environ["DISCORD_TOKEN"]
 
 verif = 0
 plt.style.use('ggplot')
