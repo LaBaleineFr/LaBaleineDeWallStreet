@@ -1,0 +1,43 @@
+stages:
+    - build
+    - release
+    - deploy
+
+variables:
+    HUB_URL: "hub.036.fr/sushifu/labaleinedewallstreet"
+    TEST_TAG: "testing"
+    TAG: "latest"
+
+before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN hub.036.fr
+
+build:
+    stage: build
+    script:
+        - docker build --pull -t $HUB_URL:$TEST_TAG .
+        - docker push $HUB_URL:$TEST_TAG
+    only:
+        - master
+
+release:
+    stage: release
+    script:
+        - docker pull $HUB_URL:$TEST_TAG
+        - docker tag $HUB_URL:$TEST_TAG $HUB_URL:$TAG
+        - docker push $HUB_URL:$TAG
+    only:
+        - master
+    when: on_success
+
+deploy_production:
+    stage: deploy
+    tags:
+        - deploy
+    environment:
+        name: production
+    script:
+        - docker-compose pull bot
+        - docker-compose up -d --force-recreate bot
+    only:
+        - master
+    when: on_success
