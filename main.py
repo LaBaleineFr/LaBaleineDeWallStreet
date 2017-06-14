@@ -7,7 +7,7 @@ import time
 import matplotlib.pyplot as plt
 from matplotlib.finance import candlestick2_ochl
 import pandas as pd
-
+import os
 
 client = discord.Client()
 
@@ -29,9 +29,11 @@ def case(*args):
 
 def calc(boo):
 
+    boo=boo.replace('os.','')
     boo=boo.split()
-    boo.remove("calc")
-    return(eval(boo[0]))
+    boo=boo.remove("calc")
+    print(boo)
+    return("")  #eval(boo[0])
 
 
 def traitement(boo): #ICI
@@ -104,7 +106,7 @@ def conv(boo2):
 
     print("CONV")
 
-    
+    print(boo2)
     boo2.remove("conv")
 
     print(boo2)
@@ -130,7 +132,10 @@ def conv(boo2):
             final = "```"+str(boo2[0])+" "+str(boo2[1]).upper()+" valent "+ str("%.2f" %final)+"$ ou "+str("%.2f" %final2)+"€  ("+str("%.4f" %(final/valBtc))+"฿)```"
 
     except : #si la devise + le nombre
-        float(boo2[1])
+        try:
+            float(boo2[1])
+        except:
+            boo2[1]=0
 
         if(boo2[0].upper()=="BTC"):
             final=float(valBtc)*float(boo2[1])
@@ -324,28 +329,41 @@ def chart(strcur):
     url = "https://poloniex.com/public?command=returnChartData&currencyPair=BTC_"+cur+"&start="+str(start)+"&end="+str(end)+"&period=1800"
     content = requests.get(url)
     data = content.json()
-    if not('error' in data):
+    if ('error') in data:
+        url = "https://bittrex.com/Api/v2.0/pub/market/GetTicks?marketName=BTC-"+cur+"&tickInterval=thirtyMin&_="+str(end)
+        content = requests.get(url)
+        data = content.json()
+        if not data['success']:
+            print("error")
+            return ""
+        df = pd.DataFrame.from_dict(data['result'])
+        df.rename(columns={'C': 'close', 'H': 'high', 'L': 'low', 'O': 'open', 'T': 'date', 'V': 'volume'},
+                  inplace=True)
+        df['date'] = pd.to_datetime(df['date'])
+        # keep consistent between polo and bittrex 1 day * 30 minutes -> 48 ticks
+        df = df.tail(48)
+
+    else:
         df = pd.DataFrame.from_dict(data)
         df['date'] = pd.to_datetime(df['date'], unit='s')
-        fig, ax = plt.subplots()
-        axes = [ax, ax.twinx().twiny()]
-        df.set_index(['date'], inplace=True)
-        candlestick2_ochl(axes[1], df['open'], df['close'], df['high'], df['low'], width=0.6, colorup='g',
-                                colordown='r',
-                                alpha=0.75)
-        df['volume'].plot(ax=axes[0], alpha=0.6)
-        # Visual ajustments
-        axes[0].yaxis.grid(False)
-        axes[0].xaxis.grid(b=True, which='both')
-        axes[0].set_xlabel('')
-        axes[1].get_xaxis().set_visible(False)
-        plt.tight_layout()
 
-        fig.savefig(cur + "_chart.png")
-        return cur + "_chart.png"
-    else:
-        print("error")
-        return ""
+    fig, ax = plt.subplots()
+    axes = [ax, ax.twinx().twiny()]
+    df.set_index(['date'], inplace=True)
+    candlestick2_ochl(axes[1], df['open'], df['close'], df['high'], df['low'], width=0.6, colorup='g',
+                            colordown='r',
+                            alpha=0.75)
+    df['volume'].plot(ax=axes[0], alpha=0.6)
+    # Visual ajustments
+    axes[0].yaxis.grid(False)
+    axes[0].xaxis.grid(b=True, which='both')
+    axes[0].set_xlabel('')
+    axes[1].get_xaxis().set_visible(False)
+    plt.tight_layout()
+
+    fig.savefig(cur + "_chart.png")
+    
+    return cur + "_chart.png"
     
 def book(strcur):
     cur = strcur.upper()
@@ -353,34 +371,53 @@ def book(strcur):
     url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_" + cur + "&depth=20"
     content = requests.get(url)
     data = content.json()
-    if not ('error' in data):
-        fig, ax = plt.subplots()
+    if ('error') in data:
+        print("trex")
+        url = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-"+cur+"&type=both&depth=50"
+        content = requests.get(url)
+        data = content.json()
+        if not data['success']:
+            print("error")
+            return ""
+        data = data['result']
+        df_asks = pd.DataFrame.from_dict(data['sell'])
+        df_asks.rename(columns={'Rate': 'price', 'Quantity': 'ask'}, inplace=True)
+        df_asks.set_index(['price'], inplace=True)
+        df_bids = pd.DataFrame.from_dict(data['buy'])
+        df_bids.rename(columns={'Rate': 'price', 'Quantity': 'bid'}, inplace=True)
+        df_bids.set_index('price', inplace=True)
+        # Cuz bittrex is shit
+        df_bids = df_bids.head(20)
+        df_asks = df_asks.head(20)
+
+    else:
+        print("poloniex")
         df_asks = pd.DataFrame.from_dict(data['asks'])
-        df_asks = df_asks.rename(columns={0: 'price', 1: 'ask'})
+        df_asks.rename(columns={0: 'price', 1: 'ask'}, inplace=True)
         df_asks.set_index(['price'], inplace=True)
         df_bids = pd.DataFrame.from_dict(data['bids'])
-        df_bids = df_bids.rename(columns={0: 'price', 1: 'bid'})
+        df_bids.rename(columns={0: 'price', 1: 'bid'}, inplace=True)
         df_bids.set_index('price', inplace=True)
-        df_asks = df_asks.cumsum()
-        df_bids["bid"] = df_bids['bid'].cumsum()
-        df_asks = df_asks.join(df_bids, how='outer')
 
-        # better visualization
-        if df_asks['ask'].max() > df_asks['bid'].max():
-            df_asks['ask'].plot(ax=ax, color='r', kind='area', alpha=0.6)
-            df_asks['bid'].plot(ax=ax, color='g', kind='area', alpha=0.6)
-        else:
-            df_asks['bid'].plot(ax=ax, color='g', kind='area', alpha=0.6)
-            df_asks['ask'].plot(ax=ax, color='r', kind='area', alpha=0.6)
-        ax.set_xlabel('')
-        plt.setp(ax.get_xticklabels(), rotation=-30, horizontalalignment='left')
-        plt.tight_layout()
+    df_asks = df_asks.cumsum()
+    df_bids = df_bids.cumsum()
+    df_asks = df_asks.join(df_bids, how='outer')
 
-        fig.savefig(cur + "_book.png")
-        return cur + "_book.png"
+    # better visualization
+    fig, ax = plt.subplots()
+    if df_asks['ask'].max() > df_asks['bid'].max():
+        df_asks['ask'].plot(ax=ax, color='r', kind='area', alpha=0.6)
+        df_asks['bid'].plot(ax=ax, color='g', kind='area', alpha=0.6)
     else:
-        print("error")
-        return ""
+        df_asks['bid'].plot(ax=ax, color='g', kind='area', alpha=0.6)
+        df_asks['ask'].plot(ax=ax, color='r', kind='area', alpha=0.6)
+    ax.set_xlabel('')
+    plt.setp(ax.get_xticklabels(), rotation=-30, horizontalalignment='left')
+    plt.tight_layout()
+
+    fig.savefig(cur + "_book.png")
+    return cur + "_book.png"
+
 
 @client.event
 async def on_message(message):
@@ -430,10 +467,10 @@ async def on_message(message):
     if message.content.startswith('conv'):
 
         retour=traitement(message.content)
-        print("retour ok")
+        print(retour)
 
-
-        await client.send_message(message.channel, retour)
+        if(retour!=0):
+            await client.send_message(message.channel, retour)
 
     if message.content.startswith('calc'):
 
@@ -446,12 +483,14 @@ async def on_message(message):
         retour = traitement(message.content)
         if (retour!=""):
             await client.send_file(message.channel,retour )
+            os.remove(retour)
         # await client.send_message(message.channel, chart('etc'))
 
     if message.content.startswith('book'):
         retour = traitement(message.content)
         if (retour!=""):
             await client.send_file(message.channel,retour )
+            os.remove(retour)
 
 
 @client.event
