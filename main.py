@@ -370,11 +370,10 @@ def chart(strcur):
 def book(strcur):
     cur = strcur.upper()
     # reduce depth variable for a more focused visualization around center
-    url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_" + cur + "&depth=20"
+    url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_" + cur + "&depth=50"
     content = requests.get(url)
     data = content.json()
     if ('error') in data:
-        print("trex")
         url = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-"+cur+"&type=both&depth=50"
         content = requests.get(url)
         data = content.json()
@@ -384,27 +383,25 @@ def book(strcur):
         data = data['result']
         df_asks = pd.DataFrame.from_dict(data['sell'])
         df_asks.rename(columns={'Rate': 'price', 'Quantity': 'ask'}, inplace=True)
-        df_asks.set_index(['price'], inplace=True)
         df_bids = pd.DataFrame.from_dict(data['buy'])
         df_bids.rename(columns={'Rate': 'price', 'Quantity': 'bid'}, inplace=True)
-        df_bids.set_index('price', inplace=True)
         # Cuz bittrex is shit
-        df_bids = df_bids.head(20)
-        df_asks = df_asks.head(20)
-
+        df_bids = df_bids.head(50)
+        df_asks = df_asks.head(50)
+ 
     else:
-        print("poloniex")
         df_asks = pd.DataFrame.from_dict(data['asks'])
         df_asks.rename(columns={0: 'price', 1: 'ask'}, inplace=True)
-        df_asks.set_index(['price'], inplace=True)
         df_bids = pd.DataFrame.from_dict(data['bids'])
         df_bids.rename(columns={0: 'price', 1: 'bid'}, inplace=True)
-        df_bids.set_index('price', inplace=True)
-
+    df_asks['ask'] = df_asks['ask']*df_asks['price']
+    df_bids['bid'] = df_bids['bid']*df_bids['price']
+    df_asks.set_index(['price'], inplace=True)
+    df_bids.set_index('price', inplace=True)
     df_asks = df_asks.cumsum()
     df_bids = df_bids.cumsum()
     df_asks = df_asks.join(df_bids, how='outer')
-
+ 
     # better visualization
     fig, ax = plt.subplots()
     if df_asks['ask'].max() > df_asks['bid'].max():
@@ -416,10 +413,9 @@ def book(strcur):
     ax.set_xlabel('')
     plt.setp(ax.get_xticklabels(), rotation=-30, horizontalalignment='left')
     plt.tight_layout()
-
-    fig.savefig(cur + "_book.png")
-    return cur + "_book.png"
-
+ 
+    fig.savefig("./fig/"+ cur + "_book.png")
+    return "./fig/"+ cur + "_book.png"
 
 @client.event
 async def on_message(message):
