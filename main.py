@@ -422,7 +422,7 @@ async def on_message(message):
 
 
     if message.content.startswith('price'):
-
+        await client.send_typing(message.channel)
         retour=traitement(message.content)
         print("retour ok")
 
@@ -443,7 +443,7 @@ async def on_message(message):
 
 
     if message.content.startswith('prix'):
-        
+        await client.send_typing(message.channel)
         retour=traitement(message.content)
         print("retour ok")
 
@@ -463,7 +463,7 @@ async def on_message(message):
             i += 1
 
     if message.content.startswith('conv'):
-
+        await client.send_typing(message.channel)
         retour=traitement(message.content)
         print(retour)
 
@@ -478,6 +478,7 @@ async def on_message(message):
 
     if message.content.startswith('chart'):
         # https: // poloniex.com / public?command = returnChartData & currencyPair = BTC_XMR & start = 1405699200 & end = 9999999999 & period = 14400
+        await client.send_typing(message.channel)
         retour = traitement(message.content)
         if (retour!=""):
             await client.send_file(message.channel,retour )
@@ -485,6 +486,7 @@ async def on_message(message):
         # await client.send_message(message.channel, chart('etc'))
 
     if message.content.startswith('book'):
+        await client.send_typing(message.channel)
         retour = traitement(message.content)
         if (retour!=""):
             await client.send_file(message.channel,retour )
