@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.finance import candlestick2_ochl
 import pandas as pd
 import os
+import numpy as np
 
 client = discord.Client()
 
@@ -138,7 +139,7 @@ def conv(boo2):
     boo2.remove("conv")
 
     print(boo2)
-    
+
     valBtc = btcrecup(0)
     valBtcE = btcrecup(1)
     print(valBtcE)
@@ -154,7 +155,7 @@ def conv(boo2):
 
         if(final==0):
             final=bittrecup(boo2[1],0)
-        if(final!=0):    
+        if(final!=0):
             final2=(float(valBtcE)*(float(final)/float(valBtc)))*float(boo2[0])
             final=float(final)*float(boo2[0])
             final = "```"+str(boo2[0])+" "+str(boo2[1]).upper()+" valent "+ str("%.2f" %final)+"$ ou "+str("%.2f" %final2)+"€  ("+str("%.4f" %(final/valBtc))+"฿)```"
@@ -170,11 +171,11 @@ def conv(boo2):
             final2=float(valBtcE)*float(boo2[1])
             print(1)
             return ("```"+str(boo2[1])+" "+str(boo2[0]).upper()+" valent "+ str("%.2f" %final)+"$ ou "+str("%.2f" %final2)+"€```")
-        
+
         final=polorecup(boo2[0],0)
         if(final==0):
             final=bittrecup(boo2[0],0)
-            
+
         if(final!=0):
             final2=(float(valBtcE)*(float(final)/float(valBtc)))*float(boo2[1])
             final=float(final)*float(boo2[1])
@@ -275,7 +276,7 @@ def polorecup(boo4,all):
 
 
     print(market)
-    
+
     if(market in data):
         if(all):
             return("```"+boo4.upper()+"   "+data[market]["last"]+"฿ ("+str("%.2f" %(float(data[market]["percentChange"])*100))+"%) $"+(str("%.5f" %(float(data[market]["last"])*(float(valBtc)))))+" (Poloniex)"+"```")
@@ -300,7 +301,7 @@ def bittrecup(boo4,all):
     data=content.json()
 
     print(data["success"])
-    
+
     if(data["success"]):
 
         if(all):
@@ -308,7 +309,7 @@ def bittrecup(boo4,all):
             percent1=((data["result"][0]["Last"])-(data["result"][0]["PrevDay"]))
             percent2=(percent1/float(data["result"][0]["PrevDay"]))*100
 
-            
+
 
             return("```"+boo4.upper()+"   "+str(data["result"][0]["Last"])+"฿ ("+str("%.2f" %percent2)+"%) $"+str("%.5f" %(data["result"][0]["Last"]*float(valBtc)))+"  (Bittrex)"+"```")
         else:
@@ -367,6 +368,7 @@ def chart(strcur):
         df = pd.DataFrame.from_dict(data['result'])
         df.rename(columns={'C': 'close', 'H': 'high', 'L': 'low', 'O': 'open', 'T': 'date', 'V': 'volume'},
                   inplace=True)
+        df['volume']=df['volume']*df['close']
         df['date'] = pd.to_datetime(df['date'])
         # keep consistent between polo and bittrex 1 day * 30 minutes -> 48 ticks
         df = df.tail(48)
@@ -390,17 +392,18 @@ def chart(strcur):
     plt.tight_layout()
 
     fig.savefig(cur + "_chart.png")
-    
+
     return cur + "_chart.png"
-    
+
 def book(strcur):
+
     cur = strcur.upper()
     # reduce depth variable for a more focused visualization around center
     url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_" + cur + "&depth=50"
     content = requests.get(url)
     data = content.json()
     if ('error') in data:
-        url = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-"+cur+"&type=both&depth=50"
+        url = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-"+cur+"&type=both&depth=100"
         content = requests.get(url)
         data = content.json()
         if not data['success']:
@@ -412,22 +415,23 @@ def book(strcur):
         df_bids = pd.DataFrame.from_dict(data['buy'])
         df_bids.rename(columns={'Rate': 'price', 'Quantity': 'bid'}, inplace=True)
         # Cuz bittrex is shit
-        df_bids = df_bids.head(50)
-        df_asks = df_asks.head(50)
- 
+        df_bids = df_bids.head(100)
+        df_asks = df_asks.head(100)
+
     else:
         df_asks = pd.DataFrame.from_dict(data['asks'])
         df_asks.rename(columns={0: 'price', 1: 'ask'}, inplace=True)
         df_bids = pd.DataFrame.from_dict(data['bids'])
         df_bids.rename(columns={0: 'price', 1: 'bid'}, inplace=True)
-    df_asks['ask'] = df_asks['ask']*df_asks['price']
-    df_bids['bid'] = df_bids['bid']*df_bids['price']
+
+    df_asks['ask'] = df_asks['ask']*df_asks['price'].astype(float)
+    df_bids['bid'] = df_bids['bid']*df_bids['price'].astype(float)
     df_asks.set_index(['price'], inplace=True)
     df_bids.set_index('price', inplace=True)
     df_asks = df_asks.cumsum()
     df_bids = df_bids.cumsum()
     df_asks = df_asks.join(df_bids, how='outer')
- 
+
     # better visualization
     fig, ax = plt.subplots()
     if df_asks['ask'].max() > df_asks['bid'].max():
@@ -439,9 +443,12 @@ def book(strcur):
     ax.set_xlabel('')
     plt.setp(ax.get_xticklabels(), rotation=-30, horizontalalignment='left')
     plt.tight_layout()
- 
-    fig.savefig("./fig/"+ cur + "_book.png")
-    return "./fig/"+ cur + "_book.png"
+
+
+    fig.savefig(cur + "_book.png")
+    return cur + "_book.png"
+
+
 
 @client.event
 async def on_message(message):
@@ -499,7 +506,7 @@ async def on_message(message):
     if message.content.startswith('calc'):
 
         retour=calc(message.content)
-        
+
         await client.send_message(message.channel,"```"+ ((message.content).split())[1]+ " = " + str("%.2f" %retour)+"```")
 
     if message.content.startswith('chart'):
@@ -518,7 +525,7 @@ async def on_message(message):
             await client.send_file(message.channel,retour )
             os.remove(retour)
 
-            
+
     if message.content.startswith('/rules'):
 
         print(message.content)
@@ -536,29 +543,29 @@ async def on_message(message):
         print(message.content)
 
         await client.send_message(message.author,rule)
-        
+
     if message.content.startswith('!règles'):
 
         print(message.content)
 
         await client.send_message(message.author,rule)
-        
+
     if message.content.startswith('/règles'):
 
         print(message.content)
 
         await client.send_message(message.author,rule)
-      
+
     if message.content.startswith('règle'):
 
         print(message.content)
 
         await client.send_message(message.author,rule)
-        
-            
+
+
 @client.event
 async def on_ready():
-    
+
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
