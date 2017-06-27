@@ -18,6 +18,32 @@ token = os.environ["DISCORD_TOKEN"]
 verif = 0
 plt.style.use('ggplot')
 
+aa="\n"
+a="\n"+"Quelques règles du discord de la baleine :"+"\n"
+
+b="- Pas de pubs sans une autorisation des admins"+"\n"
+c="- Courtoisie et savoir-vivre"+"\n"
+d="- Les calls **SANS ARGUMENT** seront suivis par un avertissement et ensuite un bannissement"+"\n"
+e="- Pensez aux gens qui vont lire et mettez-vous à leur place"+"\n"
+f="- Le flood et le troll sont interdits"+"\n"
+g="- Les commandes de prix, conv etc du bot sont uniquement autorisé dans le chan #bot"+"\n"
+h="- Les liens de parrainage sont interdits" +"\n"+"\n"+"\n"
+
+
+i="Commande du bot :"+"\n"+"\n"
+
+j="\t"+"BaleineDeWallStreet :"+"\n"
+k="\t"+"prix -> price (market) coin"+"\n"
+l="\t"+"conversion -> conv unité coin"+"\n"
+m="\t"+"graph -> chart coin"+"\n"
+n="\t"+"order book -> book coin"+"\n"+"\n"
+
+o="Lexique :"+"\n"+"\n"
+p="\t"+"!helpList "+"\n"
+q="\t"+"!help Recherche"+"\n"
+
+rule=aa+a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q
+
 class switch(object):
 
     value = None
@@ -492,7 +518,44 @@ async def on_message(message):
             await client.send_file(message.channel,retour )
             os.remove(retour)
 
+            
+    if message.content.startswith('/rules'):
 
+        print(message.content)
+
+        await client.send_message(message.author,rule)
+
+    if message.content.startswith('!rules'):
+
+        print(message.content)
+
+        await client.send_message(message.author,rule)
+
+    if message.content.startswith('rule'):
+
+        print(message.content)
+
+        await client.send_message(message.author,rule)
+        
+    if message.content.startswith('!règles'):
+
+        print(message.content)
+
+        await client.send_message(message.author,rule)
+        
+    if message.content.startswith('/règles'):
+
+        print(message.content)
+
+        await client.send_message(message.author,rule)
+      
+    if message.content.startswith('règle'):
+
+        print(message.content)
+
+        await client.send_message(message.author,rule)
+        
+            
 @client.event
 async def on_ready():
     
