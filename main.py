@@ -351,31 +351,41 @@ def renvoie(boo5):
 
 def chart(strcur):
 
+    cur = strcur.upper()
     end = round(time.time())
     # 24 hours of data, 30 min periods
     start = end - 1 * 86400
-    cur = strcur.upper()
-    url = "https://poloniex.com/public?command=returnChartData&currencyPair=BTC_"+cur+"&start="+str(start)+"&end="+str(end)+"&period=1800"
-    content = requests.get(url)
-    data = content.json()
-    if ('error') in data:
-        url = "https://bittrex.com/Api/v2.0/pub/market/GetTicks?marketName=BTC-"+cur+"&tickInterval=thirtyMin&_="+str(end)
+    if cur in ('BTC','XBT'):
+        url = "https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=30&since="+str(start)
         content = requests.get(url)
         data = content.json()
-        if not data['success']:
-            print("error")
-            return ""
-        df = pd.DataFrame.from_dict(data['result'])
-        df.rename(columns={'C': 'close', 'H': 'high', 'L': 'low', 'O': 'open', 'T': 'date', 'V': 'volume'},
+        df = pd.DataFrame.from_dict(data['result']['XXBTZUSD'])
+        df.rename(columns={0: 'date', 1: 'open', 2: 'high', 3: 'low', 4: 'close', 5: 'vwap', 6: 'volume', 7: 'count'},
                   inplace=True)
-        df['volume']=df['volume']*df['close']
-        df['date'] = pd.to_datetime(df['date'])
-        # keep consistent between polo and bittrex 1 day * 30 minutes -> 48 ticks
-        df = df.tail(48)
-
-    else:
-        df = pd.DataFrame.from_dict(data)
         df['date'] = pd.to_datetime(df['date'], unit='s')
+        df['volume'] = df['volume'].astype(float)
+    else:
+        url = "https://poloniex.com/public?command=returnChartData&currencyPair=BTC_"+cur+"&start="+str(start)+"&end="+str(end)+"&period=1800"
+        content = requests.get(url)
+        data = content.json()
+        if ('error') in data:
+            url = "https://bittrex.com/Api/v2.0/pub/market/GetTicks?marketName=BTC-"+cur+"&tickInterval=thirtyMin&_="+str(end)
+            content = requests.get(url)
+            data = content.json()
+            if not data['success']:
+                print("error")
+                return ""
+            df = pd.DataFrame.from_dict(data['result'])
+            df.rename(columns={'C': 'close', 'H': 'high', 'L': 'low', 'O': 'open', 'T': 'date', 'V': 'volume'},
+                      inplace=True)
+            df['volume'] = df['volume'] * df['close']
+            df['date'] = pd.to_datetime(df['date'])
+            # keep consistent between polo and bittrex 1 day * 30 minutes -> 48 ticks
+            df = df.tail(48)
+
+        else:
+            df = pd.DataFrame.from_dict(data)
+            df['date'] = pd.to_datetime(df['date'], unit='s')
 
     fig, ax = plt.subplots()
     axes = [ax, ax.twinx().twiny()]
@@ -454,7 +464,7 @@ def book(strcur):
 async def on_message(message):
 
 
-    if message.content.startswith('price'):
+    if message.content.startswith(('price','Price')):
         await client.send_typing(message.channel)
         retour=traitement(message.content)
         print("retour ok")
@@ -475,7 +485,7 @@ async def on_message(message):
             i += 1
 
 
-    if message.content.startswith('prix'):
+    if message.content.startswith(('prix','Prix')):
         await client.send_typing(message.channel)
         retour=traitement(message.content)
         print("retour ok")
@@ -495,7 +505,7 @@ async def on_message(message):
 
             i += 1
 
-    if message.content.startswith('conv'):
+    if message.content.startswith(('conv','Conv')):
         await client.send_typing(message.channel)
         retour=traitement(message.content)
         print(retour)
@@ -503,13 +513,13 @@ async def on_message(message):
         if(retour!=0):
             await client.send_message(message.channel, retour)
 
-    if message.content.startswith('calc'):
+    if message.content.startswith(('calc','Calc')):
 
         retour=calc(message.content)
 
         await client.send_message(message.channel,"```"+ ((message.content).split())[1]+ " = " + str("%.2f" %retour)+"```")
 
-    if message.content.startswith('chart'):
+    if message.content.startswith(('chart','Chart')):
         # https: // poloniex.com / public?command = returnChartData & currencyPair = BTC_XMR & start = 1405699200 & end = 9999999999 & period = 14400
         await client.send_typing(message.channel)
         retour = traitement(message.content)
@@ -518,49 +528,20 @@ async def on_message(message):
             os.remove(retour)
         # await client.send_message(message.channel, chart('etc'))
 
-    if message.content.startswith('book'):
+    if message.content.startswith(('book', 'Book')):
         await client.send_typing(message.channel)
         retour = traitement(message.content)
         if (retour!=""):
             await client.send_file(message.channel,retour )
             os.remove(retour)
 
-
-    if message.content.startswith('/rules'):
-
-        print(message.content)
-
-        await client.send_message(message.author,rule)
-
-    if message.content.startswith('!rules'):
+    if message.content.startswith(('/rules', '!rules', 'rule', '!règles', 'rules', 'Rules')):
 
         print(message.content)
 
-        await client.send_message(message.author,rule)
+        await client.send_message(message.author, rule)
 
-    if message.content.startswith('rule'):
 
-        print(message.content)
-
-        await client.send_message(message.author,rule)
-
-    if message.content.startswith('!règles'):
-
-        print(message.content)
-
-        await client.send_message(message.author,rule)
-
-    if message.content.startswith('/règles'):
-
-        print(message.content)
-
-        await client.send_message(message.author,rule)
-
-    if message.content.startswith('règle'):
-
-        print(message.content)
-
-        await client.send_message(message.author,rule)
 
 
 @client.event
