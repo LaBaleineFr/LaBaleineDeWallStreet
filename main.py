@@ -68,7 +68,7 @@ def calc(boo):
 def traitement(boo): #ICI
 
     d = 0
-
+    boo = boo.lower()
     print(boo)
     print("Contrôle mot 1")
     if(len(boo.split())>1):
@@ -464,28 +464,7 @@ def book(strcur):
 async def on_message(message):
 
 
-    if message.content.startswith(('price','Price')):
-        await client.send_typing(message.channel)
-        retour=traitement(message.content)
-        print("retour ok")
-
-        boucle = len(retour)
-
-        i=0
-
-        print(retour[0])
-        print(retour[1])
-
-
-        while boucle > i :
-
-            if(retour[i]!=""):
-                await client.send_message(message.channel, retour[i])
-
-            i += 1
-
-
-    if message.content.startswith(('prix','Prix')):
+    if message.content.startswith(('price','Price','prix','Prix')):
         await client.send_typing(message.channel)
         retour=traitement(message.content)
         print("retour ok")
