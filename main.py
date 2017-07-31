@@ -380,8 +380,8 @@ def draw_chart(df, params):
     p.add_layout(LinearAxis(y_range_name="foo"), 'right')
     p.grid[0].ticker.desired_num_ticks = 10
     p.yaxis[1].ticker.desired_num_ticks = 5
-    p.xaxis.major_label_text_font_size = "11pt"
-    p.yaxis[0].major_label_text_font_size = "11pt"
+    p.xaxis.major_label_text_font_size = "10pt"
+    p.yaxis[0].major_label_text_font_size = "10pt"
     p.yaxis[1].bounds = (0, df['volume'].max())
     inc = df['close'] > df['open']
     dec = df['open'] >= df['close']
