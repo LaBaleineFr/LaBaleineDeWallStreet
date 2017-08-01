@@ -2,3 +2,6 @@ requests
 discord.py
 matplotlib
 pandas
+bokeh
+pillow
+selenium

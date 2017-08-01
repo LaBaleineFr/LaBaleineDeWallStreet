@@ -7,7 +7,9 @@ import time
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
-from matplotlib.finance import candlestick2_ochl
+from bokeh.plotting import figure, output_file, show
+from bokeh.models import LinearAxis, Range1d, PrintfTickFormatter
+from bokeh.io import export_png
 import pandas as pd
 import os
 import numpy as np
@@ -348,14 +350,79 @@ def renvoie(boo5):
 
         i += 1
 
+def ema(df, n):
+    price = df['close']
+    price.fillna(method='ffill', inplace=True)
+    price.fillna(method='bfill', inplace=True)
+    ema = pd.Series(price.ewm(span=n, min_periods=n - 1).mean(), name='EMA_' + str(n))
+    df = df.join(ema)
+    return df
+
+def draw_chart(df, params):
+    # Computing indicators before triming data
+    for i in params["indicators"]:
+        if i['name'] is "ema":
+            df = ema(df, i['period'])
+    df = df.tail(48)
+    p = figure(x_axis_type='datetime', plot_width=chart_params['size']['width'],
+               plot_height=chart_params['size']['height'], title=chart_params['title'])
+    # Visual ajustments
+    p.toolbar.logo = None
+    p.toolbar_location = None
+    p.background_fill_color = "#e5e5e5"
+    p.grid.grid_line_color = "white"
+    p.grid.minor_grid_line_color = "white"
+    p.grid.minor_grid_line_alpha = 0.3
+    p.y_range = Range1d(df['low'].min() * 0.995, df['high'].max() * 1.003)
+    p.extra_y_ranges = {"foo": Range1d(start=-0, end=3 * df['volume'].max())}
+    p.yaxis[0].formatter = PrintfTickFormatter(format="%1.8f")
+    # Adding second axis for volume to the plot.
+    p.add_layout(LinearAxis(y_range_name="foo"), 'right')
+    p.grid[0].ticker.desired_num_ticks = 10
+    p.yaxis[1].ticker.desired_num_ticks = 5
+    p.xaxis.major_label_text_font_size = "10pt"
+    p.yaxis[0].major_label_text_font_size = "10pt"
+    p.yaxis[1].bounds = (0, df['volume'].max())
+    inc = df['close'] > df['open']
+    dec = df['open'] >= df['close']
+    half_day_in_ms_width = 20 * 60 * 1000
+    # candlesticks
+    p.segment(df['date'], df['high'], df['date'], df['low'], color="black")
+    p.vbar(df.date[inc], half_day_in_ms_width, df.open[inc], df.close[inc], fill_color="green", line_color="black")
+    # volume
+    p.vbar(df.date[dec], half_day_in_ms_width, df.open[dec], df.close[dec], fill_color="red", line_color="black")
+    p.vbar(df.date[inc], half_day_in_ms_width, 0, df.volume[inc], fill_color="green", line_color="black",
+           y_range_name="foo", alpha=0.3)
+    p.vbar(df.date[dec], half_day_in_ms_width, 0, df.volume[dec], fill_color="red", line_color="black",
+           y_range_name="foo", alpha=0.3)
+    for i in params["indicators"]:
+        if i['name'] is "ema":
+            p.line(df['date'], df['EMA_' + str(i['period'])], line_dash=(4, 4), color=i['color'],
+                   legend='EMA ' + str(i['period']), line_width=2)
+
+    p.legend.location = "top_left"
+    return p
+
+chart_params = {
+        "title": "",
+        "colors": {"up": "Green", "down": "Red"},
+        "size": {"height": 500, "width": 750},
+        "indicators": [
+          {"name": "ema", "period": 12, "color": "blue"},
+          {"name": "ema", "period": 26, "color": "black"}
+          # Need ajustement in api call if period is greater
+        ]
+}
+
 
 def chart(strcur):
 
     cur = strcur.upper()
     end = round(time.time())
-    # 24 hours of data, 30 min periods
-    start = end - 1 * 86400
+    # 48 hours of data, 30 min periods
+    start = end - 2 * 86400
     if cur in ('BTC','XBT'):
+        chart_params['title']="KRAKEN USD-BTC"
         url = "https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=30&since="+str(start)
         content = requests.get(url)
         data = content.json()
@@ -364,6 +431,8 @@ def chart(strcur):
                   inplace=True)
         df['date'] = pd.to_datetime(df['date'], unit='s')
         df['volume'] = df['volume'].astype(float)
+        df['low'] = df['low'].astype(float)
+        df['high'] = df['high'].astype(float)
     else:
         url = "https://poloniex.com/public?command=returnChartData&currencyPair=BTC_"+cur+"&start="+str(start)+"&end="+str(end)+"&period=1800"
         content = requests.get(url)
@@ -375,34 +444,21 @@ def chart(strcur):
             if not data['success']:
                 print("error")
                 return ""
+            chart_params['title']="BITTREX BTC-" + cur
             df = pd.DataFrame.from_dict(data['result'])
             df.rename(columns={'C': 'close', 'H': 'high', 'L': 'low', 'O': 'open', 'T': 'date', 'V': 'volume'},
                       inplace=True)
             df['volume'] = df['volume'] * df['close']
             df['date'] = pd.to_datetime(df['date'])
-            # keep consistent between polo and bittrex 1 day * 30 minutes -> 48 ticks
-            df = df.tail(48)
+            df = df.tail(80)
 
         else:
+            chart_params['title']="POLONIEX BTC-" + cur
             df = pd.DataFrame.from_dict(data)
             df['date'] = pd.to_datetime(df['date'], unit='s')
 
-    fig, ax = plt.subplots()
-    axes = [ax, ax.twinx().twiny()]
-    df.set_index(['date'], inplace=True)
-    candlestick2_ochl(axes[1], df['open'], df['close'], df['high'], df['low'], width=0.6, colorup='g',
-                            colordown='r',
-                            alpha=0.75)
-    df['volume'].plot(ax=axes[0], alpha=0.6)
-    # Visual ajustments
-    axes[0].yaxis.grid(False)
-    axes[0].xaxis.grid(b=True, which='both')
-    axes[0].set_xlabel('')
-    axes[1].get_xaxis().set_visible(False)
-    plt.tight_layout()
-
-    fig.savefig(cur + "_chart.png")
-
+    p = draw_chart(df, chart_params)
+    export_png(p, filename=cur + "_chart.png")
     return cur + "_chart.png"
 
 def book(strcur):
