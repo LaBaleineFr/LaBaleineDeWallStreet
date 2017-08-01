@@ -518,10 +518,11 @@ def book(strcur):
 
 @client.event
 async def on_message(message):
-    if message.content.startswith(''):
-        roles = [i.name for i in message.author.roles]
-        if 'Baleine novice' in roles:
-            await client.send_message(message.author, "Es-tu sûr de respecter les règles d'utilisation du bot ? ;)")
+    if message.content.startswith(('price', 'Price', 'prix', 'Prix', 'conv', 'Conv', 'chart', 'Chart', 'book', 'Book')):
+        if str(message.channel) != "bot":
+            roles = [i.name for i in message.author.roles]
+            if 'Baleine novice' in roles:
+                await client.send_message(message.author, "Es-tu sûr de respecter les règles d'utilisation du bot ? ;)")
 
     if message.content.startswith(('price','Price','prix','Prix')):
         await client.send_typing(message.channel)
