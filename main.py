@@ -4,9 +4,6 @@ import getopt
 import discord
 import math
 import time
-import matplotlib as mpl
-mpl.use('Agg')
-import matplotlib.pyplot as plt
 from bokeh.plotting import figure, output_file, show
 from bokeh.models import LinearAxis, Range1d, PrintfTickFormatter
 from bokeh.io import export_png
@@ -19,7 +16,6 @@ client = discord.Client()
 token = os.environ["DISCORD_TOKEN"]
 
 verif = 0
-plt.style.use('ggplot')
 
 aa="\n"
 a="\n"+"Quelques règles du discord de la baleine :"+"\n"
@@ -350,6 +346,7 @@ def renvoie(boo5):
 
         i += 1
 
+
 def ema(df, n):
     price = df['close']
     price.fillna(method='ffill', inplace=True)
@@ -358,14 +355,15 @@ def ema(df, n):
     df = df.join(ema)
     return df
 
+
 def draw_chart(df, params):
     # Computing indicators before triming data
     for i in params["indicators"]:
         if i['name'] is "ema":
             df = ema(df, i['period'])
     df = df.tail(48)
-    p = figure(x_axis_type='datetime', plot_width=chart_params['size']['width'],
-               plot_height=chart_params['size']['height'], title=chart_params['title'])
+    p = figure(x_axis_type='datetime', plot_width=params['size']['width'],
+               plot_height=chart_params['size']['height'], title=params['title'])
     # Visual ajustments
     p.toolbar.logo = None
     p.toolbar_location = None
@@ -375,7 +373,7 @@ def draw_chart(df, params):
     p.grid.minor_grid_line_alpha = 0.3
     p.y_range = Range1d(df['low'].min() * 0.995, df['high'].max() * 1.003)
     p.extra_y_ranges = {"foo": Range1d(start=-0, end=3 * df['volume'].max())}
-    p.yaxis[0].formatter = PrintfTickFormatter(format="%1.8f")
+    p.yaxis[0].formatter = PrintfTickFormatter(format=params['tickFormat'])
     # Adding second axis for volume to the plot.
     p.add_layout(LinearAxis(y_range_name="foo"), 'right')
     p.grid[0].ticker.desired_num_ticks = 10
@@ -411,7 +409,8 @@ chart_params = {
           {"name": "ema", "period": 12, "color": "blue"},
           {"name": "ema", "period": 26, "color": "black"}
           # Need ajustement in api call if period is greater
-        ]
+        ],
+        "tickFormat": "%1.8f"
 }
 
 
@@ -421,9 +420,10 @@ def chart(strcur):
     end = round(time.time())
     # 48 hours of data, 30 min periods
     start = end - 2 * 86400
-    if cur in ('BTC','XBT'):
-        chart_params['title']="KRAKEN USD-BTC"
-        url = "https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=30&since="+str(start)
+    if cur in ('BTC', 'XBT'):
+        chart_params['title'] = "KRAKEN USD-BTC"
+        chart_params['tickFormat'] = "%f"
+        url = "https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=30&since=" + str(start)
         content = requests.get(url)
         data = content.json()
         df = pd.DataFrame.from_dict(data['result']['XXBTZUSD'])
@@ -434,17 +434,20 @@ def chart(strcur):
         df['low'] = df['low'].astype(float)
         df['high'] = df['high'].astype(float)
     else:
-        url = "https://poloniex.com/public?command=returnChartData&currencyPair=BTC_"+cur+"&start="+str(start)+"&end="+str(end)+"&period=1800"
+        chart_params['tickFormat'] = "%1.8f"
+        url = "https://poloniex.com/public?command=returnChartData&currencyPair=BTC_"+cur+"&start="+str(start)+"&end=" +\
+              str(end)+"&period=1800"
         content = requests.get(url)
         data = content.json()
         if ('error') in data:
-            url = "https://bittrex.com/Api/v2.0/pub/market/GetTicks?marketName=BTC-"+cur+"&tickInterval=thirtyMin&_="+str(end)
+            url = "https://bittrex.com/Api/v2.0/pub/market/GetTicks?marketName=BTC-"+cur+"&tickInterval=thirtyMin&_=" +\
+                  str(end)
             content = requests.get(url)
             data = content.json()
             if not data['success']:
                 print("error")
                 return ""
-            chart_params['title']="BITTREX BTC-" + cur
+            chart_params['title'] = "BITTREX BTC-" + cur
             df = pd.DataFrame.from_dict(data['result'])
             df.rename(columns={'C': 'close', 'H': 'high', 'L': 'low', 'O': 'open', 'T': 'date', 'V': 'volume'},
                       inplace=True)
@@ -453,7 +456,7 @@ def chart(strcur):
             df = df.tail(80)
 
         else:
-            chart_params['title']="POLONIEX BTC-" + cur
+            chart_params['title'] = "POLONIEX BTC-" + cur
             df = pd.DataFrame.from_dict(data)
             df['date'] = pd.to_datetime(df['date'], unit='s')
 
@@ -461,11 +464,45 @@ def chart(strcur):
     export_png(p, filename=cur + "_chart.png")
     return cur + "_chart.png"
 
+
+def draw_book(df, params):
+    asks = df["ask"].dropna()
+    bids = df["bid"].dropna()
+    p = figure(plot_width=book_params['size']['width'],
+               plot_height=book_params['size']['height'],
+               title=book_params["title"]+"\t\tBid : %1.8f \tAsk : %1.8f\tSpread : %1.8f" %
+                                          (bids.index[-1], asks.index[0], asks.index[0] - bids.index[-1]))
+    p.toolbar.logo = None
+    p.toolbar_location = None
+    p.background_fill_color = "#e5e5e5"
+    p.grid.grid_line_color = "white"
+    p.grid.minor_grid_line_color = "white"
+    p.grid.minor_grid_line_alpha = 0.5
+    p.xaxis.formatter = PrintfTickFormatter(format="%1.8f")
+    p.x_range = Range1d(bids.index.min(), asks.index.max())
+    p.y_range = Range1d(0, max(bids.max(), asks.max()))
+    p.patch(np.append(np.array(asks.index), [np.array(asks.index).max(), np.array(asks.index).min()]),
+            np.append(asks.values, [0, 0]), alpha=0.6,
+            line_width=2, color=book_params["colors"]["ask"])
+    p.patch(np.append(np.array(bids.index), [np.array(bids.index).max(), np.array(bids.index).min()]),
+            np.append(bids.values, [0, 0]), alpha=0.6,
+            line_width=2, color=book_params["colors"]["bid"])
+    return p
+
+book_params = {
+    "title": "",
+    "colors": {"bid": "Green", "ask": "Red"},
+    "size": {"height": 500, "width": 750},
+    "depth": 100
+}
+
+
 def book(strcur):
 
     cur = strcur.upper()
     # reduce depth variable for a more focused visualization around center
-    url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_" + cur + "&depth=50"
+    url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_" + cur + "&depth=" + \
+          str(book_params["depth"])
     content = requests.get(url)
     data = content.json()
     if ('error') in data:
@@ -475,16 +512,18 @@ def book(strcur):
         if not data['success']:
             print("error")
             return ""
+        book_params['title'] = "BITTREX BTC-" + cur
         data = data['result']
         df_asks = pd.DataFrame.from_dict(data['sell'])
         df_asks.rename(columns={'Rate': 'price', 'Quantity': 'ask'}, inplace=True)
         df_bids = pd.DataFrame.from_dict(data['buy'])
         df_bids.rename(columns={'Rate': 'price', 'Quantity': 'bid'}, inplace=True)
         # Cuz bittrex is shit
-        df_bids = df_bids.head(100)
-        df_asks = df_asks.head(100)
+        df_bids = df_bids.head(book_params["depth"])
+        df_asks = df_asks.head(book_params["depth"])
 
     else:
+        book_params['title'] = "POLONIEX BTC-" + cur
         df_asks = pd.DataFrame.from_dict(data['asks'])
         df_asks.rename(columns={0: 'price', 1: 'ask'}, inplace=True)
         df_bids = pd.DataFrame.from_dict(data['bids'])
@@ -496,22 +535,11 @@ def book(strcur):
     df_bids.set_index('price', inplace=True)
     df_asks = df_asks.cumsum()
     df_bids = df_bids.cumsum()
-    df_asks = df_asks.join(df_bids, how='outer')
+    df = df_asks.join(df_bids, how='outer')
+    df.index = df.index.astype(float)
 
-    # better visualization
-    fig, ax = plt.subplots()
-    if df_asks['ask'].max() > df_asks['bid'].max():
-        df_asks['ask'].plot(ax=ax, color='r', kind='area', alpha=0.6)
-        df_asks['bid'].plot(ax=ax, color='g', kind='area', alpha=0.6)
-    else:
-        df_asks['bid'].plot(ax=ax, color='g', kind='area', alpha=0.6)
-        df_asks['ask'].plot(ax=ax, color='r', kind='area', alpha=0.6)
-    ax.set_xlabel('')
-    plt.setp(ax.get_xticklabels(), rotation=-30, horizontalalignment='left')
-    plt.tight_layout()
-
-
-    fig.savefig(cur + "_book.png")
+    p = draw_book(df, book_params)
+    export_png(p, filename=cur + "_book.png")
     return cur + "_book.png"
 
 
