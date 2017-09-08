@@ -367,38 +367,54 @@ def draw_chart(df, params):
     # Visual ajustments
     p.toolbar.logo = None
     p.toolbar_location = None
-    p.background_fill_color = "#e5e5e5"
-    p.grid.grid_line_color = "white"
-    p.grid.minor_grid_line_color = "white"
-    p.grid.minor_grid_line_alpha = 0.3
+    p.title.text_color = "whitesmoke"
+    p.title.text_font = "noto"
+    p.background_fill_color = "#36393e"
+    p.border_fill_color = "#36393e"
+    p.grid.grid_line_color = "whitesmoke"
+    p.grid.grid_line_alpha = 0.4
+    p.grid.minor_grid_line_color = "whitesmoke"
+    p.grid.minor_grid_line_alpha = 0.2
+    p.outline_line_color = "whitesmoke"
+    p.outline_line_alpha = 0.3
     p.y_range = Range1d(df['low'].min() * 0.995, df['high'].max() * 1.003)
     p.extra_y_ranges = {"foo": Range1d(start=-0, end=3 * df['volume'].max())}
     p.yaxis[0].formatter = PrintfTickFormatter(format=params['tickFormat'])
     # Adding second axis for volume to the plot.
     p.add_layout(LinearAxis(y_range_name="foo"), 'right')
     p.grid[0].ticker.desired_num_ticks = 10
+    p.axis.major_tick_line_color = "whitesmoke"
+    p.axis.minor_tick_line_color = "whitesmoke"
+    p.axis.axis_line_color = "whitesmoke"
     p.yaxis[1].ticker.desired_num_ticks = 5
     p.xaxis.major_label_text_font_size = "10pt"
     p.yaxis[0].major_label_text_font_size = "10pt"
+    p.axis.major_label_text_color = "whitesmoke"
+    p.axis.major_label_text_font = "noto"
     p.yaxis[1].bounds = (0, df['volume'].max())
     inc = df['close'] > df['open']
     dec = df['open'] >= df['close']
     half_day_in_ms_width = 20 * 60 * 1000
+    # volumes
+    p.vbar(df.date[inc], half_day_in_ms_width, 0, df.volume[inc], fill_color="green", line_color="#222222",
+           y_range_name="foo", alpha=0.4)
+    p.vbar(df.date[dec], half_day_in_ms_width, 0, df.volume[dec], fill_color="red", line_color="#222222",
+           y_range_name="foo", alpha=0.4)
     # candlesticks
-    p.segment(df['date'], df['high'], df['date'], df['low'], color="black")
-    p.vbar(df.date[inc], half_day_in_ms_width, df.open[inc], df.close[inc], fill_color="green", line_color="black")
-    # volume
-    p.vbar(df.date[dec], half_day_in_ms_width, df.open[dec], df.close[dec], fill_color="red", line_color="black")
-    p.vbar(df.date[inc], half_day_in_ms_width, 0, df.volume[inc], fill_color="green", line_color="black",
-           y_range_name="foo", alpha=0.3)
-    p.vbar(df.date[dec], half_day_in_ms_width, 0, df.volume[dec], fill_color="red", line_color="black",
-           y_range_name="foo", alpha=0.3)
+    p.segment(df['date'], df['high'], df['date'], df['low'], color="white")
+    p.vbar(df.date[inc], half_day_in_ms_width, df.open[inc], df.close[inc], fill_color="green", line_color="#222222")
+    p.vbar(df.date[dec], half_day_in_ms_width, df.open[dec], df.close[dec], fill_color="red", line_color="#222222")
+    
     for i in params["indicators"]:
         if i['name'] is "ema":
             p.line(df['date'], df['EMA_' + str(i['period'])], line_dash=(4, 4), color=i['color'],
                    legend='EMA ' + str(i['period']), line_width=2)
 
     p.legend.location = "top_left"
+    p.legend.label_text_font = "noto"
+    p.legend.label_text_color = "whitesmoke"
+    p.legend.background_fill_color = "#36393e"
+    p.legend.background_fill_alpha = 0.7
     return p
 
 chart_params = {
@@ -406,8 +422,8 @@ chart_params = {
         "colors": {"up": "Green", "down": "Red"},
         "size": {"height": 500, "width": 750},
         "indicators": [
-          {"name": "ema", "period": 12, "color": "blue"},
-          {"name": "ema", "period": 26, "color": "black"}
+          {"name": "ema", "period": 12, "color": "#EDFF86"},
+          {"name": "ema", "period": 26, "color": "#F4743B"}
           # Need ajustement in api call if period is greater
         ],
         "tickFormat": "%1.8f"
@@ -474,18 +490,30 @@ def draw_book(df, params):
                                           (bids.index[-1], asks.index[0], asks.index[0] - bids.index[-1]))
     p.toolbar.logo = None
     p.toolbar_location = None
-    p.background_fill_color = "#e5e5e5"
-    p.grid.grid_line_color = "white"
-    p.grid.minor_grid_line_color = "white"
-    p.grid.minor_grid_line_alpha = 0.5
+    p.title.text_color = "whitesmoke"
+    p.title.text_font = "noto"
+    p.background_fill_color = "#36393e"
+    p.border_fill_color = "#36393e"
+    p.grid.grid_line_color = "whitesmoke"
+    p.grid.grid_line_alpha = 0.4
+    p.grid.minor_grid_line_color = "whitesmoke"
+    p.grid.minor_grid_line_alpha = 0.2
+    p.outline_line_color = "whitesmoke"
+    p.outline_line_alpha = 0.3
     p.xaxis.formatter = PrintfTickFormatter(format="%1.8f")
+    p.axis.major_tick_line_color = "whitesmoke"
+    p.axis.minor_tick_line_color = "whitesmoke"
+    p.axis.axis_line_color = "whitesmoke"
+    p.axis.major_label_text_color = "whitesmoke"
+    p.axis.major_label_text_font = "noto"
+    p.axis.major_label_text_font_size = "10pt"
     p.x_range = Range1d(bids.index.min(), asks.index.max())
     p.y_range = Range1d(0, max(bids.max(), asks.max()))
     p.patch(np.append(np.array(asks.index), [np.array(asks.index).max(), np.array(asks.index).min()]),
-            np.append(asks.values, [0, 0]), alpha=0.6,
+            np.append(asks.values, [0, 0]), alpha=0.7,
             line_width=2, color=book_params["colors"]["ask"])
     p.patch(np.append(np.array(bids.index), [np.array(bids.index).max(), np.array(bids.index).min()]),
-            np.append(bids.values, [0, 0]), alpha=0.6,
+            np.append(bids.values, [0, 0]), alpha=0.7,
             line_width=2, color=book_params["colors"]["bid"])
     return p
 
