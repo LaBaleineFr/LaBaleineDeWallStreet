@@ -230,28 +230,48 @@ def poloniex(boo3):
         i = 1 + i
     return final
 
+def finexrecup(boo4,all):
+ 
+    url="https://api.bitfinex.com/v1/pubticker/"
+    valBtc = btcrecup(0)
+    market=boo4+"btc"
+    print(market)
+    content=requests.get(url+market)
+    data=content.json()
+ 
+    if("bid" in data):
+ 
+ 
+        if(all):
+            print("all")
+            #percent1=((data["last_price"])-(data["result"][0]["PrevDay"]))
+            #percent2=(percent1/float(data["result"][0]["PrevDay"]))*100
+       
+            return("```"+boo4.upper()+"   "+str(data["last_price"])+"฿    $"+str("%.5f" %(float(data["last_price"])*float(valBtc)))+"  (Bitfinex)"+"```")
+        else:
+            return(data["last_price"]*valBtc)
+    else:
+        return 0
+ 
+ 
 def lost(boo3):
-
-    print("Mot 2 inconnu")
-
+ 
     i = 0
     final = ["","","","","","","","","","","","","","","",""]
     boo3.remove("price")
-
+ 
     nbreCase = len(boo3)
-
-
-
+ 
     while nbreCase > i :
-
+ 
         final[i]=polorecup(boo3[i],1)
-
+ 
         if(final[i]==0):
             final[i]=bittrecup(boo3[i],1)
-
+        if(final[i]==0):
+            final[i]=finexrecup(boo3[i],1)
+ 
         i = 1 + i
-
-
     return final
 
 def polorecup(boo4,all):
@@ -282,9 +302,6 @@ def polorecup(boo4,all):
             return(float(data[market]["last"])*valBtc)
     else:
         return 0
-
-
-
 
 
 def bittrecup(boo4,all):
