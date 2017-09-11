@@ -437,44 +437,56 @@ def chart(strcur):
     # 48 hours of data, 30 min periods
     start = end - 2 * 86400
     if cur in ('BTC', 'XBT'):
-        chart_params['title'] = "KRAKEN USD-BTC"
+        chart_params['title'] = "BITFINEX USD-BTC"
         chart_params['tickFormat'] = "%f"
-        url = "https://api.kraken.com/0/public/OHLC?pair=XBTUSD&interval=30&since=" + str(start)
+        url ="https://api.bitfinex.com/v2/candles/trade:30m:tBTCUSD/hist"
         content = requests.get(url)
         data = content.json()
-        df = pd.DataFrame.from_dict(data['result']['XXBTZUSD'])
-        df.rename(columns={0: 'date', 1: 'open', 2: 'high', 3: 'low', 4: 'close', 5: 'vwap', 6: 'volume', 7: 'count'},
-                  inplace=True)
-        df['date'] = pd.to_datetime(df['date'], unit='s')
-        df['volume'] = df['volume'].astype(float)
-        df['low'] = df['low'].astype(float)
-        df['high'] = df['high'].astype(float)
+        df = pd.DataFrame.from_dict(data)
+        df.rename(columns={2: 'close', 3: 'high', 4: 'low', 1: 'open', 0: 'date', 5:'volume'}, inplace=True)
+        # bitfinex needs reverse index
+        df = df.iloc[::-1]
+        df['date'] = pd.to_datetime(df['date'], unit='ms')
+ 
     else:
         chart_params['tickFormat'] = "%1.8f"
-        url = "https://poloniex.com/public?command=returnChartData&currencyPair=BTC_"+cur+"&start="+str(start)+"&end=" +\
-              str(end)+"&period=1800"
+        url = "https://api.bitfinex.com/v2/candles/trade:30m:t"+cur+"BTC/hist"
         content = requests.get(url)
         data = content.json()
-        if ('error') in data:
-            url = "https://bittrex.com/Api/v2.0/pub/market/GetTicks?marketName=BTC-"+cur+"&tickInterval=thirtyMin&_=" +\
-                  str(end)
+        if len(data) is 0:
+            chart_params['tickFormat'] = "%1.8f"
+            url = "https://poloniex.com/public?command=returnChartData&currencyPair=BTC_"+cur+"&start="+str(start)+"&end=" +\
+                str(end)+"&period=1800"
             content = requests.get(url)
             data = content.json()
-            if not data['success']:
-                print("error")
-                return ""
-            chart_params['title'] = "BITTREX BTC-" + cur
-            df = pd.DataFrame.from_dict(data['result'])
-            df.rename(columns={'C': 'close', 'H': 'high', 'L': 'low', 'O': 'open', 'T': 'date', 'V': 'volume'},
-                      inplace=True)
-            df['volume'] = df['volume'] * df['close']
-            df['date'] = pd.to_datetime(df['date'])
-            df = df.tail(80)
+            if ('error') in data:
+                url = "https://bittrex.com/Api/v2.0/pub/market/GetTicks?marketName=BTC-"+cur+"&tickInterval=thirtyMin&_=" +\
+                    str(end)
+                content = requests.get(url)
+                data = content.json()
+                if not data['success']:
+                    print("error")
+                    return ""
+                chart_params['title'] = "BITTREX BTC-" + cur
+                df = pd.DataFrame.from_dict(data['result'])
+                df.rename(columns={'C': 'close', 'H': 'high', 'L': 'low', 'O': 'open', 'T': 'date', 'V': 'volume'},
+                        inplace=True)
+                df['volume'] = df['volume'] * df['close']
+                df['date'] = pd.to_datetime(df['date'])
+                df = df.tail(80)
 
+            else:
+                chart_params['title'] = "POLONIEX BTC-" + cur
+                df = pd.DataFrame.from_dict(data)
+                df['date'] = pd.to_datetime(df['date'], unit='s')
         else:
-            chart_params['title'] = "POLONIEX BTC-" + cur
+            chart_params['title'] = "BITFINEX BTC-" + cur
             df = pd.DataFrame.from_dict(data)
-            df['date'] = pd.to_datetime(df['date'], unit='s')
+            df.rename(columns={2: 'close', 3: 'high', 4: 'low', 1: 'open', 0: 'date', 5:'volume'}, inplace=True)
+            # bitfinex needs reverse index
+            df = df.iloc[::-1]
+            df['date'] = pd.to_datetime(df['date'], unit='ms')
+            df['volume'] = df['volume'] * df['close']
 
     p = draw_chart(df, chart_params)
     export_png(p, filename=cur + "_chart.png")
@@ -500,7 +512,8 @@ def draw_book(df, params):
     p.grid.minor_grid_line_alpha = 0.2
     p.outline_line_color = "whitesmoke"
     p.outline_line_alpha = 0.3
-    p.xaxis.formatter = PrintfTickFormatter(format="%1.8f")
+    p.xaxis.formatter = PrintfTickFormatter(format=params['tickFormat'])
+    p.yaxis.formatter = PrintfTickFormatter(format = "%f")
     p.axis.major_tick_line_color = "whitesmoke"
     p.axis.minor_tick_line_color = "whitesmoke"
     p.axis.axis_line_color = "whitesmoke"
@@ -521,41 +534,72 @@ book_params = {
     "title": "",
     "colors": {"bid": "Green", "ask": "Red"},
     "size": {"height": 500, "width": 750},
-    "depth": 100
+    "depth": 100,
+    "tickFormat": "%1.8f"
 }
 
 
 def book(strcur):
 
     cur = strcur.upper()
-    # reduce depth variable for a more focused visualization around center
-    url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_" + cur + "&depth=" + \
-          str(book_params["depth"])
-    content = requests.get(url)
-    data = content.json()
-    if ('error') in data:
-        url = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-"+cur+"&type=both&depth=100"
+    if cur in ('BTC', 'XBT'):
+        book_params['title'] = "BITFINEX USD-BTC"
+        book_params['tickFormat'] = "%f"
+        url = "https://api.bitfinex.com/v2/book/tBTCUSD/P0/?len=" + str(book_params["depth"])
         content = requests.get(url)
         data = content.json()
-        if not data['success']:
-            print("error")
-            return ""
-        book_params['title'] = "BITTREX BTC-" + cur
-        data = data['result']
-        df_asks = pd.DataFrame.from_dict(data['sell'])
-        df_asks.rename(columns={'Rate': 'price', 'Quantity': 'ask'}, inplace=True)
-        df_bids = pd.DataFrame.from_dict(data['buy'])
-        df_bids.rename(columns={'Rate': 'price', 'Quantity': 'bid'}, inplace=True)
-        # Cuz bittrex is shit
-        df_bids = df_bids.head(book_params["depth"])
-        df_asks = df_asks.head(book_params["depth"])
-
+        df = pd.DataFrame.from_dict(data)
+        df.rename(columns={0: 'price', 1: 'count', 2: 'amount'}, inplace=True)
+        #df['amount'] = df['amount'] * df['price']
+        df_asks = df[['price','amount']][df['amount'] < 0]
+        df_asks = df_asks.abs()
+        df_bids = df[['price','amount']][df['amount'] > 0]
+        df_asks.rename(columns={'amount': 'ask'}, inplace=True)
+        df_bids.rename(columns={'amount': 'bid'}, inplace=True)
     else:
-        book_params['title'] = "POLONIEX BTC-" + cur
-        df_asks = pd.DataFrame.from_dict(data['asks'])
-        df_asks.rename(columns={0: 'price', 1: 'ask'}, inplace=True)
-        df_bids = pd.DataFrame.from_dict(data['bids'])
-        df_bids.rename(columns={0: 'price', 1: 'bid'}, inplace=True)
+        book_params['tickFormat'] = "%1.8f"
+        url = "https://api.bitfinex.com/v2/book/t" + cur + "BTC/P0/?len=" + str(book_params["depth"])
+        content = requests.get(url)
+        data = content.json()
+        if ('error') in data:
+            # reduce depth variable for a more focused visualization around center
+            url = "https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_" + cur + "&depth=" + \
+                str(book_params["depth"])
+            content = requests.get(url)
+            data = content.json()
+            if ('error') in data:
+                url = "https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-"+cur+"&type=both&depth=100"
+                content = requests.get(url)
+                data = content.json()
+                if not data['success']:
+                    print("error")
+                    return ""
+                book_params['title'] = "BITTREX BTC-" + cur
+                data = data['result']
+                df_asks = pd.DataFrame.from_dict(data['sell'])
+                df_asks.rename(columns={'Rate': 'price', 'Quantity': 'ask'}, inplace=True)
+                df_bids = pd.DataFrame.from_dict(data['buy'])
+                df_bids.rename(columns={'Rate': 'price', 'Quantity': 'bid'}, inplace=True)
+                # Cuz bittrex is shit
+                df_bids = df_bids.head(book_params["depth"])
+                df_asks = df_asks.head(book_params["depth"])
+
+            else:
+                book_params['title'] = "POLONIEX BTC-" + cur
+                df_asks = pd.DataFrame.from_dict(data['asks'])
+                df_asks.rename(columns={0: 'price', 1: 'ask'}, inplace=True)
+                df_bids = pd.DataFrame.from_dict(data['bids'])
+                df_bids.rename(columns={0: 'price', 1: 'bid'}, inplace=True)
+        else:
+            book_params['title'] = "BITFINEX BTC-" + cur
+            df = pd.DataFrame.from_dict(data)
+            df.rename(columns={0: 'price', 1: 'count', 2: 'amount'}, inplace=True)
+            # df['amount'] = df['amount'] * df['price']
+            df_asks = df[['price','amount']][df['amount'] < 0]
+            df_asks = df_asks.abs()
+            df_bids = df[['price','amount']][df['amount'] > 0]
+            df_asks.rename(columns={'amount': 'ask'}, inplace=True)
+            df_bids.rename(columns={'amount': 'bid'}, inplace=True)
 
     df_asks['ask'] = df_asks['ask']*df_asks['price'].astype(float)
     df_bids['bid'] = df_bids['bid']*df_bids['price'].astype(float)
