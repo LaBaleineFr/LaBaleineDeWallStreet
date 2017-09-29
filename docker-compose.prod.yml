@@ -3,7 +3,8 @@ services:
     bot:
         restart: always
         image: $HUB_URL:$TAG
-        network_mode: "container:pia_vpn_1"
+        networks: 
+            - backend
         environment:
             - DISCORD_TOKEN=${DISCORD_TOKEN}
 
