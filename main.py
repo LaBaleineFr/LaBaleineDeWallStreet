@@ -17,31 +17,24 @@ token = os.environ["DISCORD_TOKEN"]
 
 verif = 0
 
-aa="\n"
-a="\n"+"Quelques règles du discord de la baleine :"+"\n"
-
-b="- Pas de pubs sans une autorisation des admins"+"\n"
-c="- Courtoisie et savoir-vivre"+"\n"
-d="- Les calls **SANS ARGUMENT** seront suivis par un avertissement et ensuite un bannissement"+"\n"
-e="- Pensez aux gens qui vont lire et mettez-vous à leur place"+"\n"
-f="- Le flood et le troll sont interdits"+"\n"
-g="- Les commandes de prix, conv etc du bot sont uniquement autorisé dans le chan #bot"+"\n"
-h="- Les liens de parrainage sont interdits" +"\n"+"\n"+"\n"
-
-
-i="Commande du bot :"+"\n"+"\n"
-
-j="\t"+"BaleineDeWallStreet :"+"\n"
-k="\t"+"prix -> price (market) coin"+"\n"
-l="\t"+"conversion -> conv unité coin"+"\n"
-m="\t"+"graph -> chart coin"+"\n"
-n="\t"+"order book -> book coin"+"\n"+"\n"
-
-o="Lexique :"+"\n"+"\n"
-p="\t"+"!helpList "+"\n"
-q="\t"+"!help Recherche"+"\n"
-
-rule=aa+a+b+c+d+e+f+g+h+i+j+k+l+m+n+o+p+q
+rules = ["\n"+"Quelques règles du discord de la baleine :"+"\n"]
+rules.append("- Pas de pubs sans une autorisation des admins"+"\n")
+rules.append("- Courtoisie et savoir-vivre"+"\n")
+rules.append("- Les calls **SANS ARGUMENT** seront suivis par un avertissement et ensuite un bannissement"+"\n")
+rules.append("- Pensez aux gens qui vont lire et mettez-vous à leur place"+"\n")
+rules.append("- Le flood et le troll sont interdits"+"\n")
+rules.append("- Les commandes de prix, conv etc du bot sont uniquement autorisé dans le chan #bot"+"\n")
+rules.append("- Les liens de parrainage sont interdits" +"\n"+"\n"+"\n")
+rules.append("Commande du bot :"+"\n"+"\n")
+rules.append("\t"+"BaleineDeWallStreet :"+"\n")
+rules.append("\t"+"prix -> price (market) coin"+"\n")
+rules.append("\t"+"conversion -> conv unité coin"+"\n")
+rules.append("\t"+"graph -> chart coin"+"\n")
+rules.append("\t"+"order book -> book coin"+"\n"+"\n")
+rules.append("Lexique :"+"\n"+"\n")
+rules.append("\t"+"!helpList "+"\n")
+rules.append("\t"+"!help Recherche"+"\n")
+rules = ''.join(rules)
 
 class switch(object):
 
@@ -695,7 +688,7 @@ async def on_message(message):
 
         print(message.content)
 
-        await client.send_message(message.author, rule)
+        await client.send_message(message.author, rules)
 
 
 
