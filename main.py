@@ -129,7 +129,6 @@ async def on_message(message):
         await client.send_typing(message.channel)
         result = handle(message.content)
         await client.send_file(message.channel, result)
-        print(result)
         if result.endswith('.png'):
             os.remove(result)   
 
