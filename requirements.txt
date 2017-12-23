@@ -1,6 +1,7 @@
 requests
 discord.py
 pandas
+numpy
 bokeh
 pillow
 selenium
