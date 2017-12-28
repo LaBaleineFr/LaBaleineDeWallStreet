@@ -81,6 +81,12 @@ def handle(query):
 
 @client.event
 async def on_message(message):
+
+
+    # Auto clean
+    if str(message.channel) == 'accueil':
+        await client.delete_message(message)
+
     # Troll feature for novice using the bot in the wrong channel
     if message.content.startswith((
             'price',
