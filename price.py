@@ -50,6 +50,10 @@ def price(query):
                 query.remove('b')
                 res = bittrex(query)
                 break
+            if case('cryptopia'):
+                query.remove('cryptopia')
+                res = cryptopia(query)
+                break
             # market not provided
             res = lost(query)
             break
@@ -78,6 +82,9 @@ def conv(query):
 
         if final == 0:
             final = bittrecup(query[1], 0)
+            if final == 0:
+                final = cryptopiarecup(query[1], 0)
+
         if final != 0:
             final2 = (float(val_btc_e) * (float(final) / float(val_btc))) * float(query[0])
             final = float(final) * float(query[0])
@@ -108,6 +115,8 @@ def conv(query):
         final = polorecup(query[0], 0)
         if final == 0:
             final = bittrecup(query[0], 0)
+            if final == 0:
+                final = cryptopiarecup(query[0], 0)
 
         if final != 0:
             final2 = (float(val_btc_e) * (float(final) / float(val_btc))) * float(query[1])
@@ -155,6 +164,22 @@ def poloniex(query):
     return final
 
 
+def cryptopia(query):
+    i = 0
+    final = ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '']
+    query.remove('price')
+    nb_case = len(query)
+    offset = 0
+
+    while nb_case > i:
+        final[offset] = cryptopiarecup(query[i], 1)
+        if final[offset] != 0:
+            offset += 1
+        i = 1 + i
+
+    return final
+
+
 def finexrecup(currency, more):
     url = 'https://api.bitfinex.com/v1/pubticker/{}btc'.format(currency)
     val_btc = btcrecup(0)
@@ -186,6 +211,8 @@ def lost(query):
             final[i] = bittrecup(query[i], 1)
         if final[i] == 0:
             final[i] = finexrecup(query[i], 1)
+        if final[i] == 0:
+            final[i] = cryptopiarecup(query[i], 1)
         i = 1 + i
 
     return final
@@ -237,6 +264,26 @@ def bittrecup(currency, more):
             )
         else:
             return data['result'][0]['Last'] * val_btc
+    else:
+        return 0
+
+
+def cryptopiarecup(currency, more):
+    val_btc = btcrecup(0)
+    url = 'https://www.cryptopia.co.nz/api/GetMarket/{}_BTC'.format(currency)
+    content = requests.get(url)
+    data = content.json()
+    if data['Data'] != None:
+        data = data['Data']
+        if more:
+            return '```{}\t{} ฿ ({:.2f} %) {:.2f}$ (Cryptopia)```'.format(
+                currency.upper(),
+                data['LastPrice'],
+                data['Change'],
+                float(data['LastPrice']) * val_btc
+            )
+        else:
+            return data['LastPrice'] * val_btc
     else:
         return 0
 
