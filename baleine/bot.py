@@ -1,21 +1,20 @@
-import asyncio
 import discord
 import importlib
 import logging
 import sys
 import traceback
 from baleine import util
+from baleine.command.loader import load_group
 from baleine.exception import ConfigurationError
 
 logger = logging.getLogger(__name__)
 
 def passthrough(name):
-    @asyncio.coroutine
-    def caller(self, *args, **kwargs):
+    async def caller(self, *args, **kwargs):
         for plugin in self.plugins:
             handler = getattr(plugin, name, None)
             if callable(handler):
-                yield from handler(self, *args, **kwargs)
+                await handler(self, *args, **kwargs)
     return caller
 
 
@@ -25,31 +24,27 @@ class Bot(discord.Client):
         self.settings = settings
         self.plugins = self.load_plugins(settings)
 
-    @classmethod
-    def load_plugins(cls, settings):
-        print(settings)
-        plugins = settings.get('plugins', [])
-
+    def load_plugins(self, settings):
         result = []
-        for plugin_conf in plugins:
+        for plugin_conf in settings.plugins:
             config = plugin_conf.copy()
-
             try:
                 full_name = config.pop('name')
             except KeyError:
                 raise ConfigurationError('Missing plugin name')
-
             klass = util.import_string(full_name)
             result.append(klass(config))
         return result
 
-    @asyncio.coroutine
-    def on_ready(self):
+    async def on_ready(self):
         logger.info('Connected as %s [%s]', self.user.name, self.user.id)
+        for server in self.servers:
+            for command in self.settings.commands:
+                group = load_group(server, command)
+                self.plugins.append(group)
 
-    @asyncio.coroutine
-    def on_error(self, event, *args, **kwargs):
-        if self.settings['debug']:
+    async def on_error(self, event, *args, **kwargs):
+        if self.settings.debug:
             traceback.print_exc()
         else:
             info = sys.exc_info()

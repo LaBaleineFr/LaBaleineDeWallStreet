@@ -1,4 +1,3 @@
-import asyncio
 from collections import namedtuple
 
 TickerData = namedtuple('TickerData', 'last bid ask volume change')
@@ -8,13 +7,11 @@ class Exchange(object):
     name = None
     pairs = ()
 
-    @asyncio.coroutine
-    def get_order_book(self, pair, depth):
+    async def get_order_book(self, pair, depth):
         """ Return a 2-tuple of (bid, ask) data frames """
         raise NotImplementedError()
 
-    @asyncio.coroutine
-    def get_prices(self, pair):
+    async def get_prices(self, pair):
         """ Return a TickerData instance """
         raise NotImplementedError()
 

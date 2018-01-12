@@ -15,8 +15,7 @@ class ForexExchange(exchange.Exchange):
     API = 'https://api.fixer.io/'
     TICKER_URL = '%s/latest?base=USD' % API
 
-    @asyncio.coroutine
-    def get_prices(self, pair):
+    async def get_prices(self, pair):
         """ Return a TickerData instance """
         if not pair in self.pairs:
             raise ValueError('Invalid pair')
@@ -24,8 +23,8 @@ class ForexExchange(exchange.Exchange):
         now = time.time()
         cache_time = getattr(self, '_cache_time', None)
         if not cache_time or cache_time + self.CACHE_TIME < now:
-            response = yield from aiohttp.request('GET', self.TICKER_URL)
-            data = self._data = (yield from response.json())['rates']
+            response = await aiohttp.request('GET', self.TICKER_URL)
+            data = self._data = (await response.json())['rates']
             self._cache_time = now
         else:
             data = self._data

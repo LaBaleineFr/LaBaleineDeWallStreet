@@ -1,17 +1,19 @@
 # Configuration for LaBaleine
 
-debug: no
+debug: yes
 
 modules:
     - baleine.exchanges.bitfinex
     - baleine.exchanges.bittrex
     - baleine.exchanges.forex
 
+commands:
+    - name: Pricetools
+      commands: [baleine.plugins.convert, baleine.plugins.price]
+      #permissions:
+        #- name: HasRolePermission
+          #roles: [295274815080628235]
+
 plugins:
-    - name: baleine.plugins.convert.Convert
-    - name: baleine.plugins.file.File
-      command: [rules, regles]
-      file: rules.txt
-    - name: baleine.plugins.price.Price
     - name: baleine.plugins.readonly.ReadOnly
       channels: [399403543880138755]

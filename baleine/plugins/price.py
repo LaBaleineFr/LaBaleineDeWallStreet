@@ -1,15 +1,12 @@
-import asyncio
 from baleine import command, exchange, util
 
 
 class Price(command.Command):
-    command = ('price', 'prix')
+    name = 'price'
 
-    @asyncio.coroutine
-    def execute(self, client, message, args):
+    async def execute(self, message, args):
         if len(args) == 0:
-            yield from client.send_message(message.channel,
-                                           '{}: il me faut un symbole'.format(message.author.mention))
+            await self.error('il me faut un symbole')
             return
 
         symbol = args[0].upper()
@@ -26,29 +23,23 @@ class Price(command.Command):
             try:
                 xchg = exchange.get(args[1].lower())
             except KeyError:
-                yield from client.send_message(message.channel,
-                                               '{}: je ne connais pas cet exchange.'.format(message.author.mention))
+                await self.error('je ne connais pas cet exchange.')
                 return
         else:
             try:
                 xchg = exchange.pair(tickers)
             except ValueError:
-                yield from client.send_message(message.channel,
-                                               '{}: je ne connais pas ce coin.'.format(message.author.mention))
+                await self.error('je ne connais pas ce coin.')
                 return
 
         # Get prices
         try:
-            prices = yield from xchg.get_prices(tickers)
+            prices = await xchg.get_prices(tickers)
         except IOError:
-            yield from client.send_message(
-                message.channel,
-                '{}: je n\'ai pas trouvé le prix sur cet exchange.'.format(message.author.mention)
-            )
+            await self.error('je n\'ai pas trouvé le prix sur cet exchange.')
             return
 
-        yield from client.send_message(
-            message.channel,
+        await self.send(
             '{exchange} {tickers[0]}/{tickers[1]}: {last} [{change:+.2%}], {volume} vol'.format(
                 exchange=xchg.name.capitalize(),
                 tickers=tickers,

@@ -5,7 +5,7 @@ def import_string(path):
     try:
         module_path, name = path.rsplit('.', 1)
     except ValueError:
-        raise ImportError('Invalid module path %r' % module_path)
+        raise ImportError('Invalid module path %r' % path)
 
     module = importlib.import_module(module_path)
 
