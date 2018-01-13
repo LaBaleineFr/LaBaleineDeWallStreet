@@ -4,6 +4,7 @@ A command group is a set of commands that can be attached to a dispatcher.
 It watches its designated channels and runs commands it recognizes.
 """
 import logging
+import shlex
 from baleine.exception import PermissionDenied
 
 logger = logging.getLogger(__name__)
@@ -52,6 +53,12 @@ class CommandGroup(object):
             return
 
         # Run command and handle errors
+        logger.info('{user} [{userid}] runs  {name} {args}'.format(
+            user=message.author.name,
+            userid=message.author.id,
+            name=name,
+            args=' '.join(shlex.quote(arg) for arg in args),
+        ))
         await output.start()
         try:
             await command.execute(message, args)

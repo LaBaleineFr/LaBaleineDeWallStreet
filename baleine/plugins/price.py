@@ -1,4 +1,7 @@
 from baleine import command, exchange, util
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Price(command.Command):
@@ -23,19 +26,20 @@ class Price(command.Command):
             try:
                 xchg = exchange.get(args[1].lower())
             except KeyError:
-                await self.error('je ne connais pas cet exchange.')
+                await self.error('je ne connais pas l\'exchange "%s".' % args[1])
                 return
         else:
             try:
                 xchg = exchange.pair(tickers)
             except ValueError:
-                await self.error('je ne connais pas ce coin.')
+                await self.error('je ne connais pas la paire "%s%s".' % tickers)
                 return
 
         # Get prices
         try:
             prices = await xchg.get_prices(tickers)
-        except IOError:
+        except IOError as exc:
+            logger.warning('%s command failed: %s', self.name, exc)
             await self.error('je n\'ai pas trouvé le prix sur cet exchange.')
             return
 
@@ -48,4 +52,3 @@ class Price(command.Command):
                 volume=util.format_price(prices.volume, tickers[0], hide_ticker=True),
             )
         )
-
