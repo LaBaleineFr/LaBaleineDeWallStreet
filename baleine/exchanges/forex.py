@@ -20,7 +20,7 @@ class ForexExchange(exchange.Exchange):
 
     async def get_prices(self, pair):
         """ Return a TickerData instance """
-        if not pair in self.pairs:
+        if pair not in self.pairs:
             raise ValueError('Invalid pair')
 
         now = time.time()

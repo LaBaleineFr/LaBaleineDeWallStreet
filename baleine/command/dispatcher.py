@@ -11,7 +11,7 @@ class CommandDispatcher(object):
         self.groups = []
 
     async def on_message(self, client, message):
-        if message.server != self.server:
+        if message.server.id != self.server.id:
             return
 
         # Filter non-commands early

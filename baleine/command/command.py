@@ -14,13 +14,14 @@ class CommandGroup(object):
     allow_direct = True                 # Command group is usable in direct messages to bot
     channels = None                     # List of channels where group is available (None = all)
 
-    permissions = []                    # List of permissions
+    permissions = None                  # List of permissions
     reply_class = None                  # How command writes its output
 
     enabled = True                      # If False, commands are not recognized
 
     def __init__(self, name):
         self.name = name
+        self.permissions = []
         self.commands = {}
 
     def register(self, name, command):

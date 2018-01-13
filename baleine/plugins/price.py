@@ -6,7 +6,7 @@ class Price(command.Command):
     name = 'price'
 
     async def send_help(self):
-        await self.error('%s <ticker> [<ticker>]' % self.name)
+        await self.error('%s <ticker>[/<ticker>] [exchange]' % self.name)
 
     async def execute(self, message, args):
         if len(args) < 1 or len(args) > 2:
@@ -16,8 +16,8 @@ class Price(command.Command):
         asyncio.ensure_future(self.output.notify(), loop=self.client.loop)
 
         symbol = args[0].upper()
-        if len(symbol) > 3 and symbol.endswith(('BTC', 'XBT', 'ETH', 'USD', 'EUR')):
-            tickers = (symbol[:-3], symbol[-3:])
+        if '/' in symbol:
+            tickers = tuple(symbol.split('/', 1))
         else:
             if symbol in ('BTC', 'XBT'):
                 tickers = ('BTC', 'USD')
@@ -51,6 +51,7 @@ class Price(command.Command):
                 tickers=tickers,
                 last=util.format_price(prices.last, tickers[1], hide_ticker=True),
                 change=prices.change,
-                volume=util.format_price(prices.volume, tickers[0], hide_ticker=True),
+                volume=util.format_price(prices.volume, tickers[0], hide_ticker=True)
+                       if prices.volume > 0 else '-',
             )
         )

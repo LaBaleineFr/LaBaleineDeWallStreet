@@ -18,14 +18,14 @@ def import_string(path):
 
 def find_channel(server, text):
     for channel in server.channels:
-        if text in (channel.name, channel.id):
+        if text in (channel.name.lower(), channel.id):
             return channel
     raise ValueError('Channel %s not found' % text)
 
 
 def find_role(server, text):
     for role in server.roles:
-        if text in (role.name, role.id):
+        if text in (role.name.lower(), role.id):
             return role
     raise ValueError('Role %s not found' % text)
 
