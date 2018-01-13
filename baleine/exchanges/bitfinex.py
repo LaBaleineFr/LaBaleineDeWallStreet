@@ -30,6 +30,9 @@ class BitfinexExchange(exchange.Exchange):
     BOOK_URL = '%s/book/t{tickers[0]}{tickers[1]}/P0/?len={depth}' % API
     TICKER_URL = '%s/ticker/t{tickers[0]}{tickers[1]}' % API
 
+    async def get_pairs(self):
+        return self.pairs
+
     async def get_order_book(self, pair, depth):
         """ Return a 2-tuple of (bid, ask) data frames """
         response = await aiohttp.request(

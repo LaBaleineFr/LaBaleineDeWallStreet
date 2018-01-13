@@ -15,6 +15,9 @@ class ForexExchange(exchange.Exchange):
     API = 'https://api.fixer.io/'
     TICKER_URL = '%s/latest?base=USD' % API
 
+    async def get_pairs(self):
+        return self.pairs
+
     async def get_prices(self, pair):
         """ Return a TickerData instance """
         if not pair in self.pairs:

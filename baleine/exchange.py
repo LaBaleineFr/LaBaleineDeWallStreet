@@ -1,3 +1,4 @@
+import asyncio
 from collections import namedtuple
 
 TickerData = namedtuple('TickerData', 'last bid ask volume change')
@@ -5,7 +6,10 @@ TickerData = namedtuple('TickerData', 'last bid ask volume change')
 
 class Exchange(object):
     name = None
-    pairs = ()
+
+    async def get_pairs(self):
+        """ Return an iterable of 2-tuple of tickers """
+        raise NotImplementedError()
 
     async def get_order_book(self, pair, depth):
         """ Return a 2-tuple of (bid, ask) data frames """
@@ -16,19 +20,19 @@ class Exchange(object):
         raise NotImplementedError()
 
 
-EXCHANGE_CLASSES = []
+EXCHANGES = []
 def register(cls):
-    EXCHANGE_CLASSES.append(cls)
+    EXCHANGES.append(cls())
     return cls
 
 def get(name):
-    for klass in EXCHANGE_CLASSES:
-        if klass.name == name:
-            return klass()
+    for xchg in EXCHANGES:
+        if xchg.name == name:
+            return xchg
     raise KeyError('Exchange %r is not supported' % (name, ))
 
-def pair(name):
-    for klass in EXCHANGE_CLASSES:
-        if name in klass.pairs:
-            return klass()
+async def pair(name):
+    for xchg in EXCHANGES:
+        if name in await xchg.get_pairs():
+            return xchg
     raise ValueError('Pair %r is not supported by any known exchange' % (name, ))

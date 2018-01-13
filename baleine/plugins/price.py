@@ -1,3 +1,4 @@
+import asyncio
 from baleine import command, exchange, util
 
 
@@ -11,6 +12,8 @@ class Price(command.Command):
         if len(args) < 1 or len(args) > 2:
             await self.send_help()
             return
+
+        asyncio.ensure_future(self.output.notify(), loop=self.client.loop)
 
         symbol = args[0].upper()
         if len(symbol) > 3 and symbol.endswith(('BTC', 'XBT', 'ETH', 'USD', 'EUR')):
@@ -30,7 +33,7 @@ class Price(command.Command):
                 return
         else:
             try:
-                xchg = exchange.pair(tickers)
+                xchg = await exchange.pair(tickers)
             except ValueError:
                 await self.error('je ne connais pas la paire "%s%s".' % tickers)
                 return
@@ -43,7 +46,7 @@ class Price(command.Command):
             return
 
         await self.send(
-            '{exchange} {tickers[0]}/{tickers[1]}: {last} [{change:+.2%}], {volume} vol'.format(
+            '{exchange} {tickers[0]}/{tickers[1]}: **{last}** [{change:+.2%}], {volume} vol'.format(
                 exchange=xchg.name.capitalize(),
                 tickers=tickers,
                 last=util.format_price(prices.last, tickers[1], hide_ticker=True),

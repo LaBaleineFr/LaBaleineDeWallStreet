@@ -63,11 +63,11 @@ class Convert(command.Command):
 
     async def do_convert(self, value, tickers):
         try:
-            invert, xchg = False, exchange.pair(tickers)
+            invert, xchg = False, await exchange.pair(tickers)
         except ValueError:
             invert, tickers = True, (tickers[1], tickers[0])
             try:
-                xchg = exchange.pair(tickers)
+                xchg = await exchange.pair(tickers)
             except ValueError:
                 if 'BTC' in tickers:
                     raise

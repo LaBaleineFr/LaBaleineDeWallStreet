@@ -6,6 +6,7 @@ help_path: run/help
 modules:
     - baleine.exchanges.bitfinex
     - baleine.exchanges.bittrex
+    - baleine.exchanges.cryptopia
     - baleine.exchanges.forex
 
 commands:

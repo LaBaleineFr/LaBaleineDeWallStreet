@@ -81,6 +81,9 @@ class BittrexExchange(exchange.Exchange):
     BOOK_URL = '%s/public/getorderbook?market={tickers[1]}-{tickers[0]}&type=both' % API
     TICKER_URL = '%s/public/getmarketsummary?market={tickers[1]}-{tickers[0]}' % API
 
+    async def get_pairs(self):
+        return self.pairs
+
     async def get_order_book(self, pair, depth):
         """ Return a 2-tuple of (bid, ask) data frames """
         response = await aiohttp.request(
