@@ -4,6 +4,7 @@ import logging
 import sys
 import traceback
 from baleine import util
+from baleine.command import CommandDispatcher
 from baleine.command.loader import load_group
 from baleine.exception import ConfigurationError
 
@@ -39,9 +40,11 @@ class Bot(discord.Client):
     async def on_ready(self):
         logger.info('Connected as %s [%s]', self.user.name, self.user.id)
         for server in self.servers:
-            for command in self.settings.commands:
-                group = load_group(server, command)
-                self.plugins.append(group)
+            logger.info('    -> on server %s [%s]', server.name, server.id)
+            dispatcher = CommandDispatcher(server)
+            dispatcher.groups = [load_group(server, command)
+                                 for command in self.settings.commands]
+            self.plugins.append(dispatcher)
 
     async def on_error(self, event, *args, **kwargs):
         if self.settings.debug:

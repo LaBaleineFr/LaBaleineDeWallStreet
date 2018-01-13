@@ -1,10 +1,9 @@
 """ Command Group plugin
 
-A command group is a set of commands that can be attached to a Bot instance.
-It watches its designated channels and dispatches commands it recognizes.
+A command group is a set of commands that can be attached to a dispatcher.
+It watches its designated channels and runs commands it recognizes.
 """
 import logging
-import shlex
 from baleine.exception import PermissionDenied
 
 logger = logging.getLogger(__name__)
@@ -13,7 +12,6 @@ logger = logging.getLogger(__name__)
 class CommandGroup(object):
     allow_direct = True                 # Command group is usable in direct messages to bot
     channels = None                     # List of channels where group is available (None = all)
-    prefixes = ['!', '#']
 
     permissions = []                    # List of permissions
     reply_class = None                  # How command writes its output
@@ -22,27 +20,14 @@ class CommandGroup(object):
 
     def __init__(self, name):
         self.name = name
-        self._commands = {}
+        self.commands = {}
 
     def register(self, name, command):
-        self._commands[name] = command
+        self.commands[name] = command
 
-    async def on_message(self, client, message):
-        if not self.enabled:
-            return
-
+    async def on_command(self, client, message, name, args):
         # Ignore direct messages unless they are allowed
         if not self.allow_direct and message.channel.is_private:
-            return
-
-        # Ignore non-commands
-        for prefix in self.prefixes:
-            if message.content.startswith(prefix):
-                text = message.content[len(prefix):]
-                if not text:
-                    return
-                break
-        else:
             return
 
         # If a channel list is specified ignore all messages in other chans
@@ -52,17 +37,8 @@ class CommandGroup(object):
 
         output = self.reply_class(client, message)
 
-        # Split message into arguments
-        try:
-            args = shlex.split(text)
-            name = args.pop(0)
-        except ValueError as exc:
-            await output.error('malformed string')
-            return
-
         # Fetch command to run
-        name = name.lower()
-        command_class = self._commands.get(name)
+        command_class = self.commands.get(name)
         if not command_class:
             return
         command = command_class(client, output)

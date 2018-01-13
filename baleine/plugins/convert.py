@@ -18,13 +18,17 @@ class Convert(command.Command):
             await self.error('montant %r non reconnu' % args[0])
             return
 
+        asyncio.ensure_future(self.output.notify(), loop=self.client.loop)
 
         if len(args) == 2:
             ticker = args[1].upper()
 
             try:
-                usdresult = await self.do_convert(value, (ticker, 'USD'))
-                eurresult = await self.do_convert(value, (ticker, 'EUR'))
+                result = await asyncio.gather(
+                    self.do_convert(value, (ticker, 'USD')),
+                    self.do_convert(value, (ticker, 'EUR')),
+                    loop=self.client.loop,
+                )
             except ValueError:
                 await self.error(
                     'je ne connais pas le coin "{ticker}"'.format(
@@ -34,8 +38,8 @@ class Convert(command.Command):
                 await self.send(
                     '{value} valent {usd}$ ou {eur}€'.format(
                     value=util.format_price(value, ticker),
-                    usd=util.format_price(usdresult, 'USD', hide_ticker=True),
-                    eur=util.format_price(eurresult, 'EUR', hide_ticker=True),
+                    usd=util.format_price(result[0], 'USD', hide_ticker=True),
+                    eur=util.format_price(result[1], 'EUR', hide_ticker=True),
                 ))
 
         elif len(args) == 3:

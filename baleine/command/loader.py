@@ -1,13 +1,13 @@
 from importlib import import_module
-from baleine.command import CommandGroup
+from baleine.command import CommandGroup, Command
 from baleine.exception import ConfigurationError
-from baleine.util import import_string
+from baleine.util import import_string, find_channel
+
 
 def load_group(server, config):
-    """ Create a command group from a configuration dictionary """
-
-    # First, setup the group
     group = CommandGroup(config.pop('name'))
+
+    # Simple parameters
 
     allow_direct = config.pop('allow_direct', None)
     if allow_direct is not None:
@@ -20,6 +20,8 @@ def load_group(server, config):
     prefixes = config.pop('prefixes', None)
     if prefixes is not None:
         group.prefixes = tuple(prefixes)
+
+    # Permissions are configurable class instances that we must import
 
     permissions = config.pop('permissions', None)
     if permissions is not None:
@@ -34,6 +36,8 @@ def load_group(server, config):
                     raise ConfigurationError('Permission class %s not found' % name)
             group.permissions.append(klass(**entry))
 
+    # Reply is a class that we must import
+
     reply = config.pop('reply', 'DeleteAndMentionReply')
     if reply is not None:
         try:
@@ -44,7 +48,8 @@ def load_group(server, config):
             except ImportError:
                 raise ConfigurationError('Reply class %s not found' % reply)
 
-    # Then load commands
+    # Commands are module name, we locate Command subclasses in the module
+
     commands = config.pop('commands', None)
     if commands is None:
         raise ConfigurationError('Command group has no commands')
@@ -54,7 +59,7 @@ def load_group(server, config):
     for item in commands:
         enumerable = vars(import_module(item)).values()
         for entry in enumerable:
-            if callable(entry) and hasattr(entry, 'execute'):
+            if isinstance(entry, type) and issubclass(entry, Command):
                 group.register(entry.name, entry)
 
     # Check for mistyped entries
@@ -63,16 +68,3 @@ def load_group(server, config):
             'Unkown configuration entries: %s' % ', '.join(config)
         )
     return group
-
-
-def find_channel(server, text):
-    for channel in server.channels:
-        if text in (channel.name, channel.id):
-            return channel
-    raise ConfigurationError('Channel %s not found' % text)
-
-def find_role(server, text):
-    for role in server.roles:
-        if text in (role.name, role.id):
-            return role
-    raise ConfigurationError('Role %s not found' % text)

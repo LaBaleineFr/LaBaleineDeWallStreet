@@ -1,6 +1,7 @@
 import importlib
 import math
 
+
 def import_string(path):
     try:
         module_path, name = path.rsplit('.', 1)
@@ -15,10 +16,21 @@ def import_string(path):
         raise ImportError('Module %r has no attribute %r' % (module_path, name))
 
 
-COMMAS = {
-    'USD': 2,
-    'EUR': 2,
-}
+def find_channel(server, text):
+    for channel in server.channels:
+        if text in (channel.name, channel.id):
+            return channel
+    raise ValueError('Channel %s not found' % text)
+
+
+def find_role(server, text):
+    for role in server.roles:
+        if text in (role.name, role.id):
+            return role
+    raise ValueError('Role %s not found' % text)
+
+
+COMMAS = {'USD': 2, 'EUR': 2}
 
 def format_price(value, ticker, hide_ticker=False):
     unit, commas = '', COMMAS.get(ticker, 3)
