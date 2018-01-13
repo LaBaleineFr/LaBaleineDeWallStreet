@@ -64,9 +64,8 @@ class CommandGroup(object):
             await command.execute(message, args)
         except Exception:
             logger.exception(
-                'Execution of command "{name}" with arguments ({args}) raised un handled exception',
-                name=name,
-                args=', '.join(repr(arg) for arg in args),
+                'Execution of command "{name}" with arguments ({args}) raised un handled exception'
+                .format(name=name, args=', '.join(repr(arg) for arg in args))
             )
 
     async def check_permissions(self, client, message, command):

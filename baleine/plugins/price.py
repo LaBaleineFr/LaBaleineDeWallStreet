@@ -1,15 +1,15 @@
 from baleine import command, exchange, util
-import logging
-
-logger = logging.getLogger(__name__)
 
 
 class Price(command.Command):
     name = 'price'
 
+    async def send_help(self):
+        await self.error('%s <ticker> [<ticker>]' % self.name)
+
     async def execute(self, message, args):
-        if len(args) == 0:
-            await self.error('il me faut un symbole')
+        if len(args) < 1 or len(args) > 2:
+            await self.send_help()
             return
 
         symbol = args[0].upper()
@@ -22,7 +22,7 @@ class Price(command.Command):
                 tickers = (symbol, 'BTC')
 
         # Get exchange from pair or the one given on command
-        if len(args) >= 2:
+        if len(args) == 2:
             try:
                 xchg = exchange.get(args[1].lower())
             except KeyError:
@@ -39,7 +39,6 @@ class Price(command.Command):
         try:
             prices = await xchg.get_prices(tickers)
         except IOError as exc:
-            logger.warning('%s command failed: %s', self.name, exc)
             await self.error('je n\'ai pas trouvé le prix sur cet exchange.')
             return
 

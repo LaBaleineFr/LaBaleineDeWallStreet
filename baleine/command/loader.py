@@ -5,6 +5,7 @@ from baleine.util import import_string, find_channel
 
 
 def load_group(server, config):
+    config = config.copy()
     group = CommandGroup(config.pop('name'))
 
     # Simple parameters

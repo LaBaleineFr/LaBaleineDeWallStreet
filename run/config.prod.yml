@@ -1,6 +1,7 @@
 # Configuration for LaBaleine
 
 debug: yes
+help_path: run/help
 
 modules:
     - baleine.exchanges.bitfinex
@@ -8,11 +9,10 @@ modules:
     - baleine.exchanges.forex
 
 commands:
+    - name: Help
+      commands: [baleine.plugins.help]
     - name: Pricetools
       commands: [baleine.plugins.convert, baleine.plugins.price]
-      #permissions:
-        #- name: HasRolePermission
-          #roles: [295274815080628235]
 
 plugins:
     - name: baleine.plugins.readonly.ReadOnly
