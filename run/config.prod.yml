@@ -10,6 +10,13 @@ modules:
     - baleine.exchanges.forex
 
 commands:
+    - name: DevTools
+      commands: [baleine.plugins.dev]
+      permissions:
+        - name: HasRolePermission
+          roles: [Dev]
+        - name: ChannelWhitelistPermission
+          channels: [Bot]
     - name: Help
       commands: [baleine.plugins.help]
     - name: Pricetools

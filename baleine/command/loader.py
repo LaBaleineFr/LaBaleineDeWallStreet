@@ -35,7 +35,7 @@ def load_group(server, config):
                     klass = import_string('baleine.command.permission.%s' % name)
                 except ImportError:
                     raise ConfigurationError('Permission class %s not found' % name)
-            group.permissions.append(klass(**entry))
+            group.permissions.append(klass(server, **entry))
 
     # Reply is a class that we must import
 
