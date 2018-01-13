@@ -41,6 +41,11 @@ class Bot(discord.Client):
         logger.info('Connected as %s [%s]', self.user.name, self.user.id)
         for server in self.servers:
             logger.info('    -> on server %s [%s]', server.name, server.id)
+            for channel in server.channels:
+                logger.debug('      - channel %s [%s]', channel.name, channel.id)
+            for role in server.roles:
+                logger.debug('      - role %s [%s]', role.name, role.id)
+
             dispatcher = CommandDispatcher(server)
             dispatcher.groups = [load_group(server, command)
                                  for command in self.settings.commands]
