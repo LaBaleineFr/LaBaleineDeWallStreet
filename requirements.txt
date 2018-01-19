@@ -1,4 +1,4 @@
-requests
+aiohttp
 discord.py
 pandas
-numpy
+PyYAML

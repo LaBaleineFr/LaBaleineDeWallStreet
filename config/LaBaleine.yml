@@ -1,7 +1,7 @@
 # Configuration for LaBaleine
 
 debug: yes
-help_path: run/help
+help_path: data/help
 
 modules:
     - baleine.exchanges.bitfinex
@@ -14,9 +14,9 @@ commands:
       commands: [baleine.plugins.dev]
       permissions:
         - name: HasRolePermission
-          roles: [Dev]
+          roles: [dev]
         - name: ChannelWhitelistPermission
-          channels: [Bot]
+          channels: [bot]
     - name: Help
       commands: [baleine.plugins.help]
     - name: Pricetools
