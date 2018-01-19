@@ -1,7 +1,6 @@
-import aiohttp
 import pandas
 import time
-from baleine import exchange
+from baleine import exchange, util
 
 
 @exchange.register
@@ -17,8 +16,8 @@ class CryptopiaExchange(exchange.Exchange):
     async def get_pairs(self):
         timestamp = getattr(self, '_pairs_timestamp', None)
         if timestamp is None or timestamp + 3600 < time.time():
-            response = await aiohttp.request('GET', self.PAIR_URL)
-            data = await response.json()
+            async with util.http_session().get(self.PAIR_URL) as response:
+                data = await response.json()
             if not data.get('Success', False):
                 raise IOError('Request failed: %s' % data['Message'])
 
@@ -33,10 +32,8 @@ class CryptopiaExchange(exchange.Exchange):
 
     async def get_order_book(self, pair, depth):
         """ Return a 2-tuple of (bid, ask) data frames """
-        response = await aiohttp.request(
-            'GET', self.BOOK_URL.format(tickers=pair, depth=depth)
-        )
-        data = await response.json()
+        async with util.http_session().get(self.BOOK_URL.format(tickers=pair, depth=depth)) as response:
+            data = await response.json()
         if not data.get('Success', False):
             raise IOError('Request failed: %s' % data['Message'])
 
@@ -49,8 +46,8 @@ class CryptopiaExchange(exchange.Exchange):
 
     async def get_prices(self, pair):
         """ Return a TickerData instance """
-        response = await aiohttp.request('GET', self.TICKER_URL.format(tickers=pair))
-        data = await response.json()
+        async with util.http_session().get(self.TICKER_URL.format(tickers=pair)) as response:
+            data = await response.json()
         if not data.get('Success', False):
             raise IOError('Request failed: %s' % data['Message'])
 

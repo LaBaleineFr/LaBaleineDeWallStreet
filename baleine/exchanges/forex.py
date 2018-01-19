@@ -1,4 +1,3 @@
-import aiohttp
 import asyncio
 import time
 from baleine import exchange
@@ -26,8 +25,8 @@ class ForexExchange(exchange.Exchange):
         now = time.time()
         cache_time = getattr(self, '_cache_time', None)
         if not cache_time or cache_time + self.CACHE_TIME < now:
-            response = await aiohttp.request('GET', self.TICKER_URL)
-            data = self._data = (await response.json())['rates']
+            async with util.http_session().get(self.TICKER_URL) as response:
+                data = self._data = (await response.json())['rates']
             self._cache_time = now
         else:
             data = self._data

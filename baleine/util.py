@@ -1,6 +1,7 @@
 import importlib
 import math
 
+# ============================================================================
 
 def import_string(path):
     try:
@@ -15,6 +16,16 @@ def import_string(path):
     except AttributeError:
         raise ImportError('Module %r has no attribute %r' % (module_path, name))
 
+# ============================================================================
+
+def http_session():
+    session = getattr(http_session, '_session', None)
+    if session is None:
+        import aiohttp
+        session = http_session._session = aiohttp.ClientSession()
+    return session
+
+# ============================================================================
 
 def find_channel(server, text):
     for channel in server.channels:
@@ -29,6 +40,7 @@ def find_role(server, text):
             return role
     raise ValueError('Role %s not found' % text)
 
+# ============================================================================
 
 COMMAS = {'USD': 2, 'EUR': 2}
 
@@ -63,4 +75,3 @@ def format_price(value, ticker, hide_ticker=False):
         unit=unit,
         ticker='' if hide_ticker else ticker
     )
-

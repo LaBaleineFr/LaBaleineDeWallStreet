@@ -20,8 +20,8 @@ def passthrough(name):
 
 
 class Bot(discord.Client):
-    def __init__(self, settings):
-        super().__init__()
+    def __init__(self, settings, **kwargs):
+        super().__init__(**kwargs)
         self.settings = settings
         self.plugins = self.load_plugins(settings)
 

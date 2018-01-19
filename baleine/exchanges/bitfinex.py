@@ -1,6 +1,5 @@
-import aiohttp
 import pandas
-from baleine import exchange
+from baleine import exchange, util
 
 
 @exchange.register
@@ -35,10 +34,9 @@ class BitfinexExchange(exchange.Exchange):
 
     async def get_order_book(self, pair, depth):
         """ Return a 2-tuple of (bid, ask) data frames """
-        response = await aiohttp.request(
-            'GET', self.BOOK_URL.format(tickers=pair, depth=depth)
-        )
-        data = await response.json()
+        async with util.http_session().get(self.BOOK_URL.format(tickers=pair, depth=depth)) as response:
+            data = await response.json()
+
         if 'error' in data:
             raise IOError('Request failed: %s' % data['error'])
 
@@ -53,8 +51,8 @@ class BitfinexExchange(exchange.Exchange):
 
     async def get_prices(self, pair):
         """ Return a TickerData instance """
-        response = await aiohttp.request('GET', self.TICKER_URL.format(tickers=pair))
-        data = await response.json()
+        async with util.http_session().get(self.TICKER_URL.format(tickers=pair)) as response:
+            data = await response.json()
 
         return exchange.TickerData(
             last=data[6],
