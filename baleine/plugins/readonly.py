@@ -16,7 +16,7 @@ class ReadOnly(object):
         self.channels = [str(channel) for channel in config['channels']]
 
     async def on_message(self, client, message):
-        if message.channel and message.channel.id in self.channels:
+        if message.channel and message.channel.id in self.channels and not message.author.bot:
             # Fire and forget, we don't want this to delay command execution
             asyncio.ensure_future(self.delete_message(client, message), loop=client.loop)
 

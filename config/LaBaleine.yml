@@ -25,6 +25,10 @@ commands:
       commands: [baleine.plugins.convert, baleine.plugins.price]
 
 plugins:
+    - name: baleine.plugins.naming.Naming
+      channel: Bot
+      must_match: '.*[a-z]{3}.*'
+      badwords: data/badwords
     - name: baleine.plugins.readonly.ReadOnly
       channels: [399403543880138755]
 
