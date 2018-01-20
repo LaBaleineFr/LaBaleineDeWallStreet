@@ -5,6 +5,8 @@ from baleine.util import import_string, find_channel
 
 
 def load_group(server, config):
+    """ Create a CommandGroup for given server using given configuraiton dictionary """
+
     config = config.copy()
     group = CommandGroup(config.pop('name'))
 

@@ -3,24 +3,33 @@ from baleine import command, exchange, util
 
 
 class Convert(command.Command):
+    """ Bot command that converts some amount from a coin into another """
     name = 'conv'
 
-    async def send_help(self):
-        await self.error('%s <montant> <ticker> [<ticker>]' % self.name)
+    errors = {
+        'usage': '{name} <montant> <ticker> [<ticker>]',
+        'invalid_amount': 'montant {amount} non reconnu',
+        'unknown_coin': 'je ne connais pas le coin « {ticker} »',
+        'cannot_convert': 'je ne sais pas convertir « {tickers[0]} » en « {tickers[1]} »',
+    }
 
     async def execute(self, message, args):
         if len(args) == 0:
-            await self.send_help()
+            await self.error('usage', name=self.name)
             return
+
+        # Parse value
         try:
             value = float(args[0])
         except ValueError:
-            await self.error('montant %r non reconnu' % args[0])
+            await self.error('invalid_amount', amount=args[0])
             return
 
+        # Mark ourselves as typing
         asyncio.ensure_future(self.output.notify(), loop=self.client.loop)
 
         if len(args) == 2:
+            # Only one coin name was given, convert to EUR and USD
             ticker = args[1].upper()
 
             try:
@@ -30,10 +39,7 @@ class Convert(command.Command):
                     loop=self.client.loop,
                 )
             except ValueError:
-                await self.error(
-                    'je ne connais pas le coin "{ticker}"'.format(
-                    ticker=ticker,
-                ))
+                await self.error('unknown_coin', ticker=ticker)
             else:
                 await self.send(
                     '{value} valent {usd}$ ou {eur}€'.format(
@@ -43,15 +49,13 @@ class Convert(command.Command):
                 ))
 
         elif len(args) == 3:
+            # Two coin names, find a way to convert between them
             tickers = (args[1].upper(), args[2].upper())
 
             try:
                 result = await self.do_convert(value, tickers)
             except ValueError:
-                await self.error(
-                    'je ne sais pas convertir "{tickers[0]}" en "{tickers[1]}"'.format(
-                    tickers=tickers,
-                ))
+                await self.error('cannot_convert', tickers=tickers)
             else:
                 await self.send(
                     '{value} valent {result}'.format(
@@ -59,16 +63,19 @@ class Convert(command.Command):
                     result=util.format_price(result, tickers[1]),
                 ))
         else:
-            await self.send_help()
+            await self.error('usage', name=self.name)
 
     async def do_convert(self, value, tickers):
         try:
+            # If we know an exchange that can convert, great, use it
             invert, xchg = False, await exchange.pair(tickers)
         except ValueError:
+            # See if we know an exchange that can do the conversion backwards
             invert, tickers = True, (tickers[1], tickers[0])
             try:
                 xchg = await exchange.pair(tickers)
             except ValueError:
+                # No direct conversion exist, try to go through bitcoin
                 if 'BTC' in tickers:
                     raise
                 btc = await self.do_convert(value, ('BTC', tickers[0]))

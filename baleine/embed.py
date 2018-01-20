@@ -7,6 +7,10 @@ import yaml
 
 
 class EmbedParsers(object):
+    """ Simple collection of parsers for all embed elements """
+    def __init__(self):
+        raise NotImplementedError('Cannot be instantiated')
+
     parse_title = setattr
     parse_type = setattr
     parse_description = setattr

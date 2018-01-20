@@ -73,20 +73,28 @@ class CommandGroup(object):
             )
 
     async def check_permissions(self, client, message, command):
+        """ Raise baleine.exception.PermissionDenied if command is not allowed """
         for permission in self.permissions:
             await permission.check(client, message, command)
 
 
 class Command(object):
+    """ Single abstract command, inherited by commands """
+    name = None
+    errors = {}
+
     def __init__(self, client, output):
         self.client = client
         self.output = output
 
     async def execute(self, message, args):
+        """ Execute the command with given arguments in message's context """
         raise NotImplementedError
 
     async def send(self, *args, **kwargs):
+        """ Send output to command initiator - arguments are passed through to output plugin """
         await self.output.send(*args, **kwargs)
 
-    async def error(self, *args, **kwargs):
-        await self.output.error(*args, **kwargs)
+    async def error(self, error, *args, **kwargs):
+        """ Send error to command initiator - arguments are formatted with the error message """
+        await self.output.error(self.errors[error].format(*args, **kwargs))

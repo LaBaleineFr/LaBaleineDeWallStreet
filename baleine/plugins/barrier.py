@@ -7,14 +7,18 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 class NoQuizz(Exception):
+    """ Requested quizz does not exist """
     pass
 
 class AFKError(Exception):
+    """ User went AFK during the quizz """
     pass
 
 # ============================================================================
 
 class BarrierManager(object):
+    """ Simple object that holds pre-loaded quizzes """
+
     def __init__(self):
         self.cache = {}
 
@@ -52,49 +56,77 @@ class BarrierManager(object):
         data.update(qconf)
         return data
 
-manager = BarrierManager()
+manager = BarrierManager()  # singleton
 
 # ============================================================================
 
 class Barrier(command.Command):
+    """ Bot command that runs quizzes """
     name = 'barrier'
     default_timeout = 600   # in seconds
 
+    errors = {
+        'needs_server': 'Commande utilisable depuis un serveur uniquement.',
+        'usage': 'Quel quizz voulez-vous ?',
+        'busy': 'Je suis déjà en train de vous parler.',
+        'dm_permission_denied': 'Je dois pouvoir vous envoyer un DM. '
+                                'Merci d\'autoriser les messages privés des '
+                                'membres du serveur.',
+        'exception': '{}',
+    }
+
+    messages = {
+        'timeout': 'Délai écoulé.',
+        'success': 'Quizz réussi :thumbsup:',
+        'failure': 'Quizz raté :thumbsdown:',
+        'end': 'Fin du quizz',
+        'score_title': 'Score',
+        'score_text': 'Vous avez répondu bon à {score} question(s) sur {number}.',
+        'question_number': 'Question n°{number}',
+        'mcq_choices_title': 'Choix',
+        'mcq_invalid': 'Veuillez répondre avec le numéro de votre réponse',
+    }
+
     async def execute(self, message, args):
+        # Role attribution will need a server to run on
         if message.server is None:
-            await self.error('Commande utilisable depuis un serveur uniquement.')
+            await self.error('needs_server')
             return
 
         if len(args) != 1:
-            await self.error('Quel quizz voulez-vous ?')
+            await self.error('usage')
             return
 
+        # Locate the requested quizz
         try:
             quizz = manager.quizz(args[0])
         except NoQuizz as exc:
-            await self.error(exc)
+            await self.error('exception', exc)
             return
 
         try:
+            # Run the quizz in a chat session
             async with self.client.get_private_chat(message.author) as chat:
                 success = await self.run_quizz(chat, quizz)
         except exception.BusyError:
-            await self.error('Je suis déjà en train de vous parler.')
+            await self.error('busy')
             return
         except discord.errors.Forbidden:
-            await self.error('Je dois pouvoir vous envoyer un DM. Merci d\'autoriser les messages '
-                             'privés des membres du serveur.')
+            await self.error('dm_permission_denied')
             return
 
         if success:
             role = quizz.get('grant_role', None)
             if role is not None:
                 role = util.find_role(message.server, role)
-                logging.info('granting role {role.name} to {user.name} [{user.id}]'.format(
+                logger.info('granting role {role.name} to {user.name} [{user.id}]'.format(
                              role=role, user=message.author))
                 await self.client.add_roles(message.author, role)
 
     async def run_quizz(self, chat, quizz):
+        """ Run given quizz in the (owned) chat session """
+
+        # If quizz has an introduction text, play it first
         text = quizz.get('introduction')
         if text:
             obj = embed.from_dict(text)
@@ -107,27 +139,28 @@ class Barrier(command.Command):
         to_ask = min(quizz.get('num_questions', len(questions)), len(questions))
         questions = random.sample(questions, to_ask)
 
+        # Ask each question in turn, counting scores
         score, min_score = 0, min(quizz.get('min_score', to_ask), to_ask)
         try:
             for index, question in enumerate(questions, 1):
                 if await self.ask_question(chat, quizz, question, index):
                     score += 1
         except AFKError:
-            success, message = False, 'Délai écoulé.'
+            success, message = False, self.messages['timeout']
         else:
             success = score >= min_score
-            message = (quizz.get('success', 'Quizz réussi :thumbsup:') if success else
-                       quizz.get('failure', 'Quizz raté :thumbsdown:'))
+            message = (quizz.get('success', self.messages['success']) if success else
+                       quizz.get('failure', self.messages['failure']))
 
-        # Act upon result
+        # Display results
         result = discord.Embed()
-        result.title = 'Fin du quizz'
+        result.title = self.messages['end']
         result.description = message
         self.customize_embed(result, quizz)
 
         result.add_field(
-            name='Score',
-            value='Vous avez répondu bon à {score} question(s) sur {number}.'.format(
+            name=self.messages['score_title'],
+            value=self.messages['score_text'].format(
                 score=score,
                 minimum=min_score,
                 number=len(questions),
@@ -138,11 +171,13 @@ class Barrier(command.Command):
         return success
 
     def customize_embed(self, obj, quizz):
+        """ Add fancy markings to all embeds, if the quizz defines any """
         author = quizz.get('author', None)
         if author is not None:
             embed.EmbedParsers.parse_author(obj, 'author', author)
 
     async def ask_question(self, chat, quizz, question, index):
+        """ Play a single quizz question in the chat, return whether answer was correct """
         mode = question.get('mode', 'mcq')
 
         # Create a nice embed for the question
@@ -152,19 +187,22 @@ class Barrier(command.Command):
         else:
             obj = embed.from_dict(question['question'])
 
-        obj.title = 'Question n°%s' % index
+        obj.title = self.messages['question_number'].format(number=index)
         self.customize_embed(obj, quizz)
 
-        # Add choices if we are in choices mode
+        # Dispatch question to handler for requested mode
         handler = getattr(self, 'ask_%s_question' % mode)
 
         is_correct, reply = await handler(chat, quizz, question, obj)
+
+        # Show a reaction, if the feature is enabled
         if quizz.get('feedback', False) and reply is not None:
             await self.client.add_reaction(reply, '\U0001F44D' if is_correct else '\U0001F44E')
 
         return is_correct
 
     async def ask_mcq_question(self, chat, quizz, question, obj):
+        """ Ask a multiple choice question """
         if not isinstance(question['answers'], (list, tuple)):
             raise exception.ConfigurationError('for a mcq question, answers must be a list')
 
@@ -173,7 +211,7 @@ class Barrier(command.Command):
         random.shuffle(answers)
 
         obj.add_field(
-            name='Choix',
+            name=self.messages['mcq_choices_title'],
             value='\n'.join(
                 '%s. %s' % (index, text)
                 for index, text in enumerate(answers, 1)
@@ -191,13 +229,14 @@ class Barrier(command.Command):
             try:
                 value = answers[int(reply.content) - 1]
             except (ValueError, IndexError):
-                await chat.send('Veuillez répondre avec le numéro de votre réponse')
+                await chat.send(self.messages['mcq_invalid'])
                 continue
             break
 
         return ((value == correct), reply)
 
     async def ask_text_question(self, chat, quizz, question, obj):
+        """ Ask an open question """
         answers = question['answers']
         answers = [answers] if isinstance(answers, (str, int, float)) else list(answers)
 
@@ -206,5 +245,7 @@ class Barrier(command.Command):
         if reply is None:
             raise AFKError()
 
-        return (reply.content.lower().strip() in (str(answer).lower().strip() for answer in answers),
+        return (reply.content.lower().strip() in (
+                    str(answer).lower().strip() for answer in answers
+                ),
                 reply)

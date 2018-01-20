@@ -2,12 +2,15 @@ import importlib
 import yaml
 
 class Settings(object):
-    def __init__(self, path):
-        with open(path, 'r') as sf:
-            data = yaml.load(sf)
+    """ Simple object that holds global configuration data """
+
+    def __init__(self, data):
         for key, value in data.items():
             setattr(self, key, value)
 
 def load(path):
+    """ Load configuration from a yaml file """
     global settings
-    settings = Settings(path)
+    with open(path, 'r') as sf:
+        data = yaml.load(sf)
+    settings = Settings(data)

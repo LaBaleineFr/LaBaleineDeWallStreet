@@ -1,6 +1,8 @@
 
 
 def parse_emojis(text):
+    """ Replace discord-style emojis with actual unicode characters """
+
     items = text.split(':')
     result = []
 

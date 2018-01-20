@@ -4,9 +4,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Reply objects abstract out how commands generate output
 
 class Reply(object):
+    """ Abstract out the way commands generate output """
+
     def __init__(self, client, message):
         self.client = client
         self.message = message

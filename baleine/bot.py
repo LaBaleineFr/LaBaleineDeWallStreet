@@ -11,6 +11,7 @@ from baleine.exception import ConfigurationError
 logger = logging.getLogger(__name__)
 
 def passthrough(name):
+    """ Helper function that setups event forwarding to plugins """
     async def caller(self, *args, **kwargs):
         for plugin in self.plugins:
             handler = getattr(plugin, name, None)
@@ -20,6 +21,8 @@ def passthrough(name):
 
 
 class Bot(discord.Client):
+    """ Main bot object, handling connection to discord and receiving events """
+
     def __init__(self, settings, **kwargs):
         super().__init__(**kwargs)
         self.settings = settings
@@ -27,6 +30,7 @@ class Bot(discord.Client):
         self.private_chats = {}
 
     def load_plugins(self, settings):
+        """ Load plugins from the 'plugins' key in settings dictionary """
         result = []
         for plugin_conf in settings.plugins:
             config = plugin_conf.copy()
@@ -39,6 +43,7 @@ class Bot(discord.Client):
         return result
 
     def get_private_chat(self, user):
+        """ Obtain a direct communication channel to the user """
         try:
             return self.private_chats[user.id]
         except KeyError:
@@ -55,6 +60,7 @@ class Bot(discord.Client):
             for role in server.roles:
                 logger.debug('      - role %s [%s]', role.name, role.id)
 
+            # Load bot command engine, one for each server we run on
             dispatcher = CommandDispatcher(server)
             dispatcher.groups = [load_group(server, command)
                                  for command in self.settings.commands]
@@ -62,7 +68,7 @@ class Bot(discord.Client):
 
     async def on_error(self, event, *args, **kwargs):
         if self.settings.debug:
-            traceback.print_exc()
+            logger.exception('discord error in event: %s' % event)
         else:
             info = sys.exc_info()
             logger.error('%s in %s event: %s', info[0].__name__, event, info[1])

@@ -4,6 +4,7 @@ import math
 # ============================================================================
 
 def import_string(path):
+    """ Import a python object by its full python dotted path """
     try:
         module_path, name = path.rsplit('.', 1)
     except ValueError:
@@ -19,6 +20,7 @@ def import_string(path):
 # ============================================================================
 
 def http_session():
+    """ Return an http session to use for http requests """
     session = getattr(http_session, '_session', None)
     if session is None:
         import aiohttp
@@ -28,6 +30,7 @@ def http_session():
 # ============================================================================
 
 def find_channel(server, text):
+    """ Given a string that may be either a channel name or id, find the channel """
     text = text.lower()
     for channel in server.channels:
         if text in (channel.name.lower(), channel.id):
@@ -36,6 +39,7 @@ def find_channel(server, text):
 
 
 def find_role(server, text):
+    """ Given a string that may be either a role name or id, find the role """
     text = text.lower()
     for role in server.roles:
         if text in (role.name.lower(), role.id):
@@ -47,6 +51,7 @@ def find_role(server, text):
 COMMAS = {'USD': 2, 'EUR': 2}
 
 def format_price(value, ticker, hide_ticker=False):
+    """ Clever display of prices """
     unit, commas = '', COMMAS.get(ticker, 3)
 
     if ticker == 'BTC' and value < 1:
