@@ -3,7 +3,7 @@ import importlib
 import logging
 import sys
 import traceback
-from baleine import util
+from baleine import private, util
 from baleine.command import CommandDispatcher
 from baleine.command.loader import load_group
 from baleine.exception import ConfigurationError
@@ -24,6 +24,7 @@ class Bot(discord.Client):
         super().__init__(**kwargs)
         self.settings = settings
         self.plugins = self.load_plugins(settings)
+        self.private_chats = {}
 
     def load_plugins(self, settings):
         result = []
@@ -36,6 +37,14 @@ class Bot(discord.Client):
             klass = util.import_string(full_name)
             result.append(klass(config))
         return result
+
+    def get_private_chat(self, user):
+        try:
+            return self.private_chats[user.id]
+        except KeyError:
+            chat = private.PrivateChat(self, user)
+            self.private_chats[user.id] = chat
+            return chat
 
     async def on_ready(self):
         logger.info('Connected as %s [%s]', self.user.name, self.user.id)

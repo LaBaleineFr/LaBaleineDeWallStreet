@@ -10,6 +10,8 @@ modules:
     - baleine.exchanges.forex
 
 commands:
+    - name: Barrier
+      commands: [baleine.plugins.barrier]
     - name: DevTools
       commands: [baleine.plugins.dev]
       permissions:
@@ -25,3 +27,11 @@ commands:
 plugins:
     - name: baleine.plugins.readonly.ReadOnly
       channels: [399403543880138755]
+
+barrier:
+    quizzes:
+        - name: hello
+          file: data/barrier/newcomers.yml
+          num_questions: 10
+          min_score: 9
+          grant_role: Baleine novice

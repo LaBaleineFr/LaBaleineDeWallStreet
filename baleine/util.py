@@ -28,6 +28,7 @@ def http_session():
 # ============================================================================
 
 def find_channel(server, text):
+    text = text.lower()
     for channel in server.channels:
         if text in (channel.name.lower(), channel.id):
             return channel
@@ -35,6 +36,7 @@ def find_channel(server, text):
 
 
 def find_role(server, text):
+    text = text.lower()
     for role in server.roles:
         if text in (role.name.lower(), role.id):
             return role

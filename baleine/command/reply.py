@@ -61,4 +61,5 @@ class DeleteAndMentionReply(MentionReply):
     """ Reply object that send answers back through originating channel """
 
     async def start(self):
-        asyncio.ensure_future(self.client.delete_message(self.message), loop=self.client.loop)
+        if not self.channel.is_private:
+            asyncio.ensure_future(self.client.delete_message(self.message), loop=self.client.loop)
