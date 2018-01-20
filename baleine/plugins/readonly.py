@@ -10,7 +10,14 @@ class ReadOnly(object):
 
         self.channels = [str(channel) for channel in config['channels']]
 
-    @asyncio.coroutine
-    def on_message(self, client, message):
+    async def on_message(self, client, message):
         if message.channel.id in self.channels:
-            yield from client.delete_message(message)
+            asyncio.ensure_future(self.delete_message(client, message), loop=client.loop)
+
+    async def delete_message(self, client, message):
+        try:
+            await client.delete_message(message)
+        except discord.errors.NotFound:
+            pass
+        except discord.errors.HTTPException as exc:
+            logger.warning('could not delete message in channel %s: %s' % (message.channel.name, exc))

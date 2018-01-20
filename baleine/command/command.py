@@ -3,6 +3,7 @@
 A command group is a set of commands that can be attached to a dispatcher.
 It watches its designated channels and runs commands it recognizes.
 """
+import asyncio
 import logging
 import shlex
 from baleine.exception import PermissionDenied
@@ -63,9 +64,11 @@ class CommandGroup(object):
         await output.start()
         try:
             await command.execute(message, args)
+        except asyncio.CancelledError:
+            raise
         except Exception:
             logger.exception(
-                'Execution of command "{name}" with arguments ({args}) raised un handled exception'
+                'Execution of command "{name}" with arguments ({args}) raised unhandled exception'
                 .format(name=name, args=', '.join(repr(arg) for arg in args))
             )
 

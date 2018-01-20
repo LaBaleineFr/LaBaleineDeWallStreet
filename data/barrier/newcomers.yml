@@ -11,6 +11,14 @@ introduction:
         garder seulement les motivés, nous vous demandons de répondre à ces quelques questions.
     color: 15630911
 
+failure: |
+    Raté :frowning:
+    Vous pouvez réessayer en relançant la même commande. N'hésitez pas à utiliser votre moteur de recherche, ce test est là pour vous encourager à trouver les infos par vous même. :wink:
+
+success: |
+    Bravo ! :thumbsup:
+    Vous avez réussi le test. Bienvenue sur La Baleine, prenez le temps de bien lire les règles et au plaisir de vous lire très vite !
+
 questions:
   - question: Je veux transférer 100€ de Kraken à Bittrex, quel est le coin le moins cher ?
     answers: [Ripple, Bitcoin, Ethereum, Dash, Augur]

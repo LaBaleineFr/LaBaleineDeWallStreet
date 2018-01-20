@@ -32,6 +32,7 @@ barrier:
     quizzes:
         - name: hello
           file: data/barrier/newcomers.yml
-          num_questions: 10
-          min_score: 9
+          num_questions: 4
+          #min_score: 9
+          feedback: yes
           grant_role: Baleine novice

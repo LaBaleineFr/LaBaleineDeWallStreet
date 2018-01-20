@@ -1,4 +1,9 @@
 import asyncio
+import discord
+import logging
+
+logger = logging.getLogger(__name__)
+
 # Reply objects abstract out how commands generate output
 
 class Reply(object):
@@ -27,6 +32,14 @@ class Reply(object):
         else:
             await self.client.send_file(destination, fileobj, content=content, filename=filename)
 
+    async def delete_message(self, message):
+        try:
+            await self.client.delete_message(message)
+        except discord.errors.NotFound:
+            pass
+        except discord.errors.HTTPException as exc:
+            logger.warning('could not delete message in channel %s: %s' % (message.channel.name, exc))
+
 
 class DirectReply(Reply):
     """ Reply object that send answers back through a direct message """
@@ -36,7 +49,7 @@ class DirectReply(Reply):
 
     async def send(self, text, embed=None, fileobj=None, filename=None):
         if not self.channel.is_private:
-            asyncio.ensure_future(self.client.delete_message(self.message), loop=self.client.loop)
+            asyncio.ensure_future(self.delete_message(self.message), loop=self.client.loop)
         await self.do_send(self.user, content=text, embed=embed, fileobj=fileobj, filename=filename)
 
 
@@ -62,4 +75,4 @@ class DeleteAndMentionReply(MentionReply):
 
     async def start(self):
         if not self.channel.is_private:
-            asyncio.ensure_future(self.client.delete_message(self.message), loop=self.client.loop)
+            asyncio.ensure_future(self.delete_message(self.message), loop=self.client.loop)
