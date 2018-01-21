@@ -1,6 +1,6 @@
 # Configuration for LaBaleine
 
-debug: yes
+debug: no
 help_path: data/help
 
 modules:
@@ -29,16 +29,16 @@ plugins:
       channel: Bot
       must_match: '.*[a-z]{3}.*'
       badwords: data/badwords
-    - name: baleine.plugins.readonly.ReadOnly
-      channels: [399403543880138755]
+    #- name: baleine.plugins.readonly.ReadOnly
+      #channels: [399403543880138755]
 
 barrier:
     quizzes:
-        - name: hello
+        - name: novice
           file: data/barrier/newcomers.yml
           num_questions: 8
           feedback: yes
-          grant_role: Baleine novice
+          grant_role: 399541360157523968
 
 logging:
     version: 1

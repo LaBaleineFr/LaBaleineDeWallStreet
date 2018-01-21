@@ -1,4 +1,4 @@
-import pandas
+#import pandas
 from baleine import exchange, util
 
 

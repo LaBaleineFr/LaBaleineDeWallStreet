@@ -1,4 +1,4 @@
-import pandas
+#import pandas
 import time
 from baleine import exchange, util
 
