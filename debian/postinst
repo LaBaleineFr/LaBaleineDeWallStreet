@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+USERNAME=baleine
+
+adduser --system --force-badname --quiet --home / --no-create-home $USERNAME
+
+#DEBHELPER#

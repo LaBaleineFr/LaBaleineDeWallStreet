@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: baleine
+
+Files: *
+Copyright: 2017-2018 La Baleine
+License: all rights reserved
+ Internal package.

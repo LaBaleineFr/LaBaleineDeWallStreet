@@ -1,0 +1,17 @@
+[Unit]
+Description=Baleine discord bot - %i
+
+[Service]
+Type=simple
+
+ExecStart=/usr/bin/baleine-bot
+User=baleine
+Group=nogroup
+EnvironmentFile=/etc/baleine/bot-%i.env
+
+Restart=on-failure
+KillSignal=SIGINT
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target

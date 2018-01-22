@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+#export DH_VERBOSE = 1
+
+export DH_VIRTUALENV_INSTALL_ROOT=/usr/share/python3
+
+%:
+	dh $@ --with=python-virtualenv --with=systemd
+
+override_dh_virtualenv:
+	dh_virtualenv --python /usr/bin/python3 --builtin-venv
