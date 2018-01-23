@@ -18,7 +18,7 @@ commands:
         - name: HasRolePermission
           roles: [dev]
         - name: ChannelWhitelistPermission
-          channels: [bot]
+          channels: [bot, techdev]
     - name: Help
       commands: [baleine.plugins.help]
     - name: Pricetools
@@ -27,7 +27,7 @@ commands:
 plugins:
     - name: baleine.plugins.naming.Naming
       channel: Bot
-      must_match: '.*[a-z]{3}.*'
+      must_match: '.*[a-zéèàç]{3}.*'
       badwords: data/badwords
     #- name: baleine.plugins.readonly.ReadOnly
       #channels: [399403543880138755]
@@ -38,31 +38,23 @@ barrier:
           file: data/barrier/newcomers.yml
           num_questions: 8
           feedback: yes
-          grant_role: 399541360157523968
+          grant_role: Baleine novice
 
 logging:
     version: 1
     formatters:
         verbose:
-            format: '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s'
-            datefmt: '%H:%M:%S'
-        simple:
-            format: '%(levelname)s %(message)s'
+            format: '%(levelname)s [%(module)s] %(message)s'
     handlers:
-        file:
-            level: INFO
-            class: logging.FileHandler
-            filename: baleine.log
-            formatter: verbose
         console:
             level: DEBUG
             class: logging.StreamHandler
             formatter: verbose
     root:
         level: WARNING
-        handlers: [file, console]
+        handlers: [console]
     loggers:
         baleine:
             level: DEBUG
-            handlers: [file, console]
+            handlers: [console]
             propagate: no
