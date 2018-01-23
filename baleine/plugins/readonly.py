@@ -7,16 +7,23 @@ logger = logging.getLogger(__name__)
 class ReadOnly(object):
     """ Simple plugin that unconditionnaly deletes any message sent to some channels """
 
+    channels = None
+    whitelist = None
+
     def __init__(self, config):
         try:
             channels = config['channels']
         except KeyError:
             raise baleine.bot.ConfigError('ReadOnly plugin requires a channels list')
-
         self.channels = [str(channel) for channel in config['channels']]
 
+        self.whitelist = [item.lower() for item in config.get('whitelist') or []]
+
     async def on_message(self, client, message):
-        if message.channel and message.channel.id in self.channels and not message.author.bot:
+        if (message.channel and message.channel.id in self.channels and
+            not message.author.bot and
+            not any(role.name.lower() in self.whitelist for role in message.author.roles)):
+
             # Fire and forget, we don't want this to delay command execution
             asyncio.ensure_future(self.delete_message(client, message), loop=client.loop)
 

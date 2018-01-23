@@ -29,8 +29,11 @@ plugins:
       channel: Bot
       must_match: '.*[a-zéèàç]{3}.*'
       badwords: data/badwords
-    #- name: baleine.plugins.readonly.ReadOnly
-      #channels: [399403543880138755]
+    - name: baleine.plugins.readonly.ReadOnly
+      channels:
+        - 386061346342436864        # accueil sur le server officiel
+        - 399403543880138755        # general sur le serveur de test
+      whitelist: [administrateur, modérateur trading, modérateur minage]
 
 barrier:
     quizzes:
