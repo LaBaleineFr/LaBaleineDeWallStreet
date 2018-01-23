@@ -1,0 +1,54 @@
+
+type: rich
+color: 15630911
+author:
+    name: La Baleine
+    url: https://www.labaleine.gg/
+    icon_url: https://cdn.discordapp.com/icons/291991078830342144/2033fdc4b1fbdb303676c470ba149ccd.png
+
+fields:
+    - name: La Baleine dans l'internet
+      inline: no
+      value: |
+            :twitter: [Twitter de la Baleine](https://twitter.com/baleinefr)
+            :youtube: [Chaine Youtube de la Baleine](https://www.youtube.com/labaleinefr)
+            :medium: [Blog de la Baleine](https://medium.com/la-baleine)
+            :twitch: [Twitch de la Baleine](https://twitch.tv/baleinefr)
+            :www: [Site web de la Baleine](https://www.labaleine.gg/)
+
+    - name: Les pools
+      inline: no
+      value: |
+            :ubiq: https://ubiq.labaleine.gg/
+            :music: https://music.labaleine.gg/
+
+    - name: Lexique
+      inline: no
+      value: |
+            [La Baleine](http://www.labaleine.gg/lexique/)
+            [Ethereum France](https://www.ethereum-france.com/glossaire-du-crypto-trader/)
+            [CryptoForums](https://cryptoforums.io/index.php?threads/ctr-cryptocurrency-trading-guide.11/) (enregistrement nécessaire)
+
+    - name: "Coup de :hearts: (Projet FR)"
+      inline: no
+      value: |
+            [Cryptoast](https://cryptoast.fr/) : guide complet sur le trading
+            [Poslist](http://www.poslit.org/) : list de coins en proof-of-stake
+            [CoinMarketCal](http://coinmarketcal.com/) : calendried crypto ultime
+            [CryptAlert](https://cryptalert.com/) : alertes de prix par email et SMS
+            [CryptoDonate](https://cryptodonate.io/) : dons stream crypto
+
+    - name: Soutenir la Baleine
+      inline: no
+      value: |
+            :bitcoin: 32N18uL4MDEVodREtcFwzX5viEmT7Zvfoc
+            :ether: 0x9588e5318A23122061347814e4f93d008CF9129D
+            :ltc: MRSHpsTzTpv1DaGBnLuFDBZ3rrHKnCcbBb
+            :shapeshift: Altcoins : https://goo.gl/D9Q9GF
+
+    - name: Liens de parrainage
+      inline: no
+      value: |
+            [Coinbase](https://goo.gl/ApG4V7) : 10€ offerts pour 100€ d'achat
+            [Binance](https://goo.gl/ikYWUz) : place de marché
+            [Cex.io](https://goo.gl/rvKUbi) : achat par CB

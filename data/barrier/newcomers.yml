@@ -1,0 +1,69 @@
+
+author:
+    name: La Baleine
+    url: https://www.labaleine.gg/
+    icon_url: https://cdn.discordapp.com/icons/291991078830342144/2033fdc4b1fbdb303676c470ba149ccd.png
+
+introduction:
+    title: Test d'entrée de La Baleine
+    description: >
+        Bienvenue sur le discord de La Baleine. Nous avons beaucoup de nouveaux, et afin de
+        garder seulement les motivés, nous vous demandons de répondre à ces quelques questions.
+    color: 15630911
+
+failure: |
+    Raté :frowning:
+    Vous pouvez réessayer en relançant la même commande. N'hésitez pas à utiliser votre moteur de recherche, ce test est là pour vous encourager à trouver les infos par vous même. :wink:
+
+success: |
+    Bravo ! :thumbsup:
+    Vous avez réussi le test. Bienvenue sur La Baleine, prenez le temps de bien lire les règles et au plaisir de vous lire très vite !
+
+questions:
+  - question: Je veux transférer 100€ de Kraken à Bittrex, quel est le coin le moins cher ?
+    answers: [Ripple, Bitcoin, Ethereum, Dash, Augur]
+
+  - question: Combien de satoshis faut-il pour faire un bitcoin ?
+    mode: text
+    answers: 100000000
+
+  - question: Dans quel coin je dois investir aujourd'hui ?
+    answers:
+        - On ne peut pas savoir, à toi de faire ton analyse.
+        - Allin un petit altcoin pas cher, il va forcément monter.
+        - Regarde un coin qui a bien monté, c'est un bon placement.
+
+  - question: Comment s'appelle l'action de sortir des coins d'un wallet sur un exchange ?
+    answers: [Withdraw, Deposit, Transfer, Exchange]
+
+  - question: Quelle est la signification de l'acronyme ATH ?
+    mode: text
+    answers: [all time high, all-time high, all-time-high, alltime high]
+
+  - question: Qu'est-ce qu'un support en trading ?
+    answers:
+        - Un niveau de prix où beaucoup de personnes souhaitent acheter d'un actif.
+        - Un outil qui aide le trader à passer un ordre stop.
+        - Un endroit où un trader peut discuter du prix avec d'autres traders plus expérimentés.
+        - Une méthode pour mesurer la variation de prix entre deux cryptos.
+
+  - question: Qu'est-ce que le supply d'une crypto ?
+    answers:
+        - Le nombre total de coins actuellement en circulation.
+        - Le nombre total de personnes souhaitant vendre des coins.
+        - Le montant total des ordres de vente pour le coin.
+        - Le nombre de coins générés lorsque les mineurs valident un bloc.
+
+  - question: Qu'appelle-t-on un doji ?
+    answers:
+        - Une bougie avec des mèches beaucoup plus longues que le corps.
+        - Une configuration particulière de l'indicateur Ichimoku.
+        - La séparation d'un coin en deux coins différents suite à une mise à jour.
+        - Une méthode de connexion de rig permettant d'optimiser la vitesse de minage.
+
+  - question: Lequel de ces noms ne désigne pas une figure chartiste en analyse technique ?
+    answers:
+        - Triangle de focalisation, focusing needle en anglais.
+        - Biseau ascendant, rising wedge en anglais.
+        - Épaule-tête-épaule, head&shoulders an anglais.
+        - Double top, double top aussi en anglais.
