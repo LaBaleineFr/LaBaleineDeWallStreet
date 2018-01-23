@@ -53,11 +53,11 @@ class Naming(object):
 
     # Event handlers
     async def on_member_join(self, client, member):
-        if not member.bot:
+        if member.top_role < member.server.me.top_role and not member.bot:
             await self.check_name(client, member)
 
     async def on_member_update(self, client, before, after):
-        if not after.bot:
+        if after.top_role < after.server.me.top_role and not after.bot:
             await self.check_name(client, after)
 
     # Actual work
