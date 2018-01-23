@@ -129,7 +129,7 @@ class Barrier(command.Command):
         # If quizz has an introduction text, play it first
         text = quizz.get('introduction')
         if text:
-            obj = embed.from_dict(text)
+            obj = embed.Parser().from_dict(text)
             self.customize_embed(obj, quizz)
             await chat.send('', embed=obj)
             await asyncio.sleep(5)
@@ -174,7 +174,7 @@ class Barrier(command.Command):
         """ Add fancy markings to all embeds, if the quizz defines any """
         author = quizz.get('author', None)
         if author is not None:
-            embed.EmbedParsers.parse_author(obj, 'author', author)
+            embed.Parser().parse_author(obj, 'author', author)
 
     async def ask_question(self, chat, quizz, question, index):
         """ Play a single quizz question in the chat, return whether answer was correct """
@@ -185,7 +185,7 @@ class Barrier(command.Command):
             obj = discord.Embed()
             obj.description = question['question']
         else:
-            obj = embed.from_dict(question['question'])
+            obj = embed.Parser().from_dict(question['question'])
 
         obj.title = self.messages['question_number'].format(number=index)
         self.customize_embed(obj, quizz)

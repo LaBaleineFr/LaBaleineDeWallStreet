@@ -1,7 +1,16 @@
 
+def build_emoji_dict(server):
+    my_roles = set(server.me.roles)
+    return dict(
+        (emoji.name, emoji) for emoji in server.emojis
+        if not emoji.roles or my_roles.intersection(emoji.roles)
+    )
 
-def parse_emojis(text):
+def parse_emojis(text, custom=None):
     """ Replace discord-style emojis with actual unicode characters """
+
+    if custom is None:
+        custom = {}
 
     items = text.split(':')
     result = []
@@ -12,11 +21,11 @@ def parse_emojis(text):
             result.append(item)
             skip_next = False
             continue
-        emoji = EMOJI_TABLE.get(item)
+        emoji = EMOJI_TABLE.get(item) or custom.get(item)
         if emoji is None:
             result.extend((':', item))
         else:
-            result.append(emoji)
+            result.append(str(emoji))
             skip_next = True
 
     return ''.join(result)

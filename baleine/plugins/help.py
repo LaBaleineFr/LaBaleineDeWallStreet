@@ -26,7 +26,7 @@ class Help(command.Command):
 
         try:
             with open(os.path.join(conf.settings.help_path, subject + '.yml'), 'r') as fd:
-                obj = embed.from_yaml(fd)
+                obj = embed.Parser(server=message.server).from_yaml(fd)
         except IOError:
             # The file does not exist, or is not readable
             await self.error('unknown')

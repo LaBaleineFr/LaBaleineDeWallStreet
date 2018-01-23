@@ -4,63 +4,68 @@
 from datetime import datetime
 import discord
 import yaml
+from baleine import emoji
 
 
-class EmbedParsers(object):
+class Parser(object):
     """ Simple collection of parsers for all embed elements """
-    def __init__(self):
-        raise NotImplementedError('Cannot be instantiated')
+    def __init__(self, server=None):
+        self.server = server
+        self.emoji_dict = None if server is None else emoji.build_emoji_dict(server)
 
-    parse_title = setattr
+    def from_dict(self, data):
+        embed = discord.Embed()
+
+        for key, value in data.items():
+            handler = getattr(self, 'parse_%s' % key, None)
+            if handler:
+                handler(embed, key, value)
+        return embed
+
+    def from_yaml(self, stream):
+        data = yaml.load(stream)
+        return self.from_dict(data)
+
+    def handle_emojis(self, text):
+        if text is discord.Embed.Empty:
+            return text
+        return emoji.parse_emojis(text, custom=self.emoji_dict)
+
+    def passthrough(self, embed, key, value):
+        setattr(embed, key, self.handle_emojis(value))
+
+    parse_title = passthrough
     parse_type = setattr
-    parse_description = setattr
+    parse_description = passthrough
     parse_url = setattr
     parse_color = setattr
     parse_timestamp = setattr
     parse_image = setattr
     parse_thumbnail = setattr
 
-    @staticmethod
-    def parse_image(embed, key, value):
+    def parse_image(self, embed, key, value):
         embed.set_image(url=value)
 
-    @staticmethod
-    def parse_thumbnail(embed, key, value):
+    def parse_thumbnail(self, embed, key, value):
         embed.set_thumbnail(url=value)
 
-    @staticmethod
-    def parse_author(embed, key, value):
+    def parse_author(self, embed, key, value):
         embed.set_author(
-            name=value.get('name', discord.Embed.Empty),
+            name=self.handle_emojis(value.get('name', discord.Embed.Empty)),
             url=value.get('url', discord.Embed.Empty),
             icon_url=value.get('icon_url', discord.Embed.Empty),
         )
 
-    @staticmethod
-    def parse_footer(embed, key, value):
+    def parse_footer(self, embed, key, value):
         embed.set_footer(
-            text=value.get('text', discord.Embed.Empty),
+            text=self.handle_emojis(value.get('text', discord.Embed.Empty)),
             icon_url=value.get('icon_url', discord.Embed.Empty),
         )
 
-    @staticmethod
-    def parse_fields(embed, key, value):
+    def parse_fields(self, embed, key, value):
         for field in value:
             embed.add_field(
-                name=field.get('name', discord.Embed.Empty),
-                value=field.get('value', discord.Embed.Empty),
+                name=self.handle_emojis(field.get('name', discord.Embed.Empty)),
+                value=self.handle_emojis(field.get('value', discord.Embed.Empty)),
                 inline=field.get('inline', True),
             )
-
-def from_dict(data):
-    embed = discord.Embed()
-
-    for key, value in data.items():
-        handler = getattr(EmbedParsers, 'parse_%s' % key, None)
-        if handler:
-            handler(embed, key, value)
-    return embed
-
-def from_yaml(stream):
-    data = yaml.load(stream)
-    return from_dict(data)
