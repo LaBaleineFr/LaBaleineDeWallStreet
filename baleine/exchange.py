@@ -1,6 +1,8 @@
 import asyncio
 from collections import namedtuple
 
+CandleData = namedtuple('CandleData', 'time open close low high volume')
+OrderData = namedtuple('OrderData', 'price amount')
 TickerData = namedtuple('TickerData', 'last bid ask volume change')
 
 
@@ -12,8 +14,12 @@ class Exchange(object):
         """ Return an iterable of 2-tuple of tickers """
         raise NotImplementedError()
 
+    async def get_chart_data(self, pair, ut, number):
+        """ Return an iterable of CandleData """
+        raise NotImplementedError()
+
     async def get_order_book(self, pair, depth):
-        """ Return a 2-tuple of (bid, ask) data frames """
+        """ Return a 2-tuple of (bid, ask) OrderData """
         raise NotImplementedError()
 
     async def get_prices(self, pair):
