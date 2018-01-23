@@ -27,7 +27,9 @@ commands:
 plugins:
     - name: baleine.plugins.naming.Naming
       channel: Bot
-      must_match: '.*[a-zéèàç]{3}.*'
+      filters:
+        - match: '.*[a-zéèàç]{3}.*'
+          message: "Votre nom doit comporter au moins trois lettres latines consécutives."
       badwords: data/badwords
     - name: baleine.plugins.readonly.ReadOnly
       channels:

@@ -1,5 +1,6 @@
 import importlib
 import math
+import unicodedata
 
 # ============================================================================
 
@@ -82,3 +83,23 @@ def format_price(value, ticker, hide_ticker=False):
         unit=unit,
         ticker='' if hide_ticker else ticker
     )
+
+# ============================================================================
+
+_TAGS = ('<font>', '<circle>', '<super>', '<sub>', '<vertical>',
+         '<wide>', '<narrow>', '<small>', '<square>')
+
+def simplify_unicode(text):
+    decompose = unicodedata.decomposition
+    result = []
+    for char in text:
+        dchar = decompose(char)
+        if dchar:
+            dchar = dchar.split()
+            if dchar[0] in _TAGS and len(dchar) == 2:
+                result.append(chr(int(dchar[1], 16)))
+            else:
+                result.append(char)
+        else:
+            result.append(char)
+    return ''.join(result)

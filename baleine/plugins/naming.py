@@ -1,20 +1,25 @@
 import baleine.bot
+from collections import namedtuple
 import discord
 import logging
 import random
 import re
+from baleine import util
 
 logger = logging.getLogger(__name__)
 
 class Naming(object):
     """ Simple plugin that renames users violating the naming policy """
 
-    must_match = None
+    Filter = namedtuple('Filter', 'match message')
+
+    filters = None
     badwords = None
 
     messages = {
-        'badname': 'Le nom que vous avez choisi n\'est pas autorisé sur ce serveur. '
-                   'En attendant que vous le changiez, je vous en ai choisi un.',
+        'badword': 'Votre nom contient la séquence interdite « {word} ». '
+                   'Je vous ai renommé, vous pouvez choisir un autre pseudo d\'un clic droit sur '
+                   'votre nom dans le chat.',
     }
 
     nicknames = [
@@ -23,9 +28,9 @@ class Naming(object):
     ]
 
     translation = str.maketrans(
-        '0135@!ÀÂÄÇÉÈÊËÎÏÛÜÔÖaàâäbcçdeéèêëfghiîïjklmnoôöpqrstuùûüvwxyz',
-        'OIESAIAAACEEEEIIUUOOaaaabccdeeeeefghiiijkimnooopqrstuuuuvwxyz',
-        '+=<>~-_.,: '
+        '0135$@!ÀÂÄÇÉÈÊËÎÏÛÜÔÖaàâäbcçdeéèêëfghiîïjklmnoôöpqrstuùûüvwxyz',
+        'OIESSAIAAACEEEEIIUUOOaaaabccdeeeeefghiiijkimnooopqrstuuuuvwxyz',
+        '&()[]{}<>|_^=+,.:/\;*? '
     )
 
 
@@ -35,9 +40,10 @@ class Naming(object):
         except KeyError:
             raise baleine.bot.ConfigError('Naming plugin requires a channel')
 
-        must_match = config.get('must_match')
-        if must_match:
-            self.must_match = re.compile(must_match, re.IGNORECASE)
+        self.filters = [
+            self.Filter(re.compile(item['match'], re.IGNORECASE), item['message'])
+            for item in config.get('filters', [])
+        ]
 
         badwords = config.get('badwords')
         if badwords:
@@ -45,44 +51,65 @@ class Naming(object):
                 self.badwords = [line.strip().translate(self.translation).lower()
                                  for line in fd if line.strip()]
 
+    # Event handlers
     async def on_member_join(self, client, member):
-        if not member.bot and not self.check(member.nick or member.name):
-            await self.act(client, member)
+        if not member.bot:
+            await self.check_name(client, member)
 
     async def on_member_update(self, client, before, after):
-        if not after.bot and not self.check(after.nick or after.name):
-            await self.act(client, after)
+        if not after.bot:
+            await self.check_name(client, after)
+
+    # Actual work
+    async def check_name(self, client, member):
+        # If name is valid, don't do anything
+        name = member.nick or member.name
+        valid, reason = self.check(name)
+        if valid:
+            return
+
+        # Name not valid, see whether we can make it valid by dropping unicode features
+        suggestion = util.simplify_unicode(name)
+        valid, reason = self.check(suggestion)
+        if valid:
+            # yes, then rename with no warning
+            await self.rename(client, member, suggestion)
+            return
+
+        # No, name really is invalid, pick a new one and warn
+        suggestion = await self.pick_nickname(client, member)
+        await self.rename(client, member, suggestion, reason)
 
     def check(self, name):
-        if self.must_match and not self.must_match.fullmatch(name):
-            return False
+        for item in self.filters:
+            if not item.match.fullmatch(name):
+                return False, item.message
 
-        simplified = name.translate(self.translation).lower()
-        if any(word in simplified for word in self.badwords):
-            return False
-        return True
+        simplified = util.simplify_unicode(name).translate(self.translation).lower()
+        for word in self.badwords:
+            if word in simplified:
+                return False, self.messages['badword'].format(word=word)
+        return True, None
 
-    async def act(self, client, member):
+    async def pick_nickname(self, client, member):
+        return random.choice(self.nicknames)
+
+    async def rename(self, client, member, name, reason=None):
         old = member.nick or member.name
-        nickname = await self.pick_nickname(client, member)
 
         try:
-            await client.change_nickname(member, nickname)
+            await client.change_nickname(member, name)
         except discord.errors.Forbidden:
             logger.info('not renaming {user} [{userid}]: forbidden'.format(
                         user=member.name, userid=member.id))
             return
         else:
             logger.info('renamed {user} [{userid}] from {old} to {new}'.format(
-                        user=member.name, userid=member.id,
-                        old=old,
-                        new=nickname))
+                        user=member.name, userid=member.id, old=old, new=name))
 
-        message = self.messages['badname'].format(name=member.name)
-        try:
-            await client.send_message(member, message)
-        except discord.errors.Forbidden:
-            await client.send_message(self.channel, '%s: %s' % (member.mention, message))
-
-    async def pick_nickname(self, client, member):
-        return random.choice(self.nicknames)
+        if reason:
+            reason = reason.format(user=member.name)
+            try:
+                await client.send_message(member, reason)
+            except discord.errors.Forbidden:
+                await client.send_message(self.channel, '%s: %s' % (member.mention, reason))
