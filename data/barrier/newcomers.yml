@@ -5,7 +5,7 @@ author:
     icon_url: https://cdn.discordapp.com/icons/291991078830342144/2033fdc4b1fbdb303676c470ba149ccd.png
 
 introduction:
-    title: Test d'entrée de La Baleine
+    title: Bonjour de La Baleine
     description: >
         Bienvenue sur le discord de La Baleine. Nous avons beaucoup de nouveaux, et afin de
         garder seulement les motivés, nous vous demandons de répondre à ces quelques questions.
@@ -14,56 +14,115 @@ introduction:
 failure: |
     Raté :frowning:
     Vous pouvez réessayer en relançant la même commande. N'hésitez pas à utiliser votre moteur de recherche, ce test est là pour vous encourager à trouver les infos par vous même. :wink:
-
 success: |
-    Bravo ! :thumbsup:
-    Vous avez réussi le test. Bienvenue sur La Baleine, prenez le temps de bien lire les règles et au plaisir de vous lire très vite !
-
+    Bravo ! :thumbsup:
+    Vous avez réussi le test. Bienvenue sur La Baleine, prenez le temps de bien lire les règles et au plaisir de vous lire très vite !
 questions:
-  - question: Je veux transférer 100€ de Kraken à Bittrex, quel est le coin le moins cher ?
+  - question: Je veux transférer 100€ de Kraken à Bittrex, quel est le coin le moins cher ?
     answers: [Ripple, Bitcoin, Ethereum, Dash, Augur]
 
-  - question: Combien de satoshis faut-il pour faire un bitcoin ?
+  - question: Combien de satoshis faut-il pour faire un bitcoin ?
     mode: text
     answers: 100000000
 
-  - question: Dans quel coin je dois investir aujourd'hui ?
+  - question: Dans quel coin je dois investir aujourd'hui ?
     answers:
         - On ne peut pas savoir, à toi de faire ton analyse.
         - Allin un petit altcoin pas cher, il va forcément monter.
         - Regarde un coin qui a bien monté, c'est un bon placement.
 
-  - question: Comment s'appelle l'action de sortir des coins d'un wallet sur un exchange ?
+  - question: Comment s'appelle l'action de sortir des coins d'un wallet sur un exchange ?
     answers: [Withdraw, Deposit, Transfer, Exchange]
 
-  - question: Quelle est la signification de l'acronyme ATH ?
+  - question: Quelle est la signification de l'acronyme ATH ?
     mode: text
     answers: [all time high, all-time high, all-time-high, alltime high]
 
-  - question: Qu'est-ce qu'un support en trading ?
+  - question: Qu'est-ce qu'un support en trading ?
     answers:
         - Un niveau de prix où beaucoup de personnes souhaitent acheter d'un actif.
         - Un outil qui aide le trader à passer un ordre stop.
         - Un endroit où un trader peut discuter du prix avec d'autres traders plus expérimentés.
         - Une méthode pour mesurer la variation de prix entre deux cryptos.
 
-  - question: Qu'est-ce que le supply d'une crypto ?
+  - question: Qu'est-ce que le supply d'une crypto ?
     answers:
         - Le nombre total de coins actuellement en circulation.
         - Le nombre total de personnes souhaitant vendre des coins.
         - Le montant total des ordres de vente pour le coin.
         - Le nombre de coins générés lorsque les mineurs valident un bloc.
 
-  - question: Qu'appelle-t-on un doji ?
+  - question: Qu'appelle-t-on un doji ?
     answers:
         - Une bougie avec des mèches beaucoup plus longues que le corps.
         - Une configuration particulière de l'indicateur Ichimoku.
         - La séparation d'un coin en deux coins différents suite à une mise à jour.
         - Une méthode de connexion de rig permettant d'optimiser la vitesse de minage.
 
-  - question: Lequel de ces noms ne désigne pas une figure chartiste en analyse technique ?
+  - question: Lequel de ces noms ne désigne pas une figure chartiste en analyse technique ?
     answers:
         - Triangle de focalisation, focusing needle en anglais.
         - Biseau ascendant, rising wedge en anglais.
-        - Épaule-tête-épaule, head&shoulders an anglais.
+        - Épaule-tête-épaule, head&shoulders en anglais.
         - Double top, double top aussi en anglais.
+
+  - question: Le token "XYZ" bat des records de croissance, est-il judicieux d'y rentrer ?
+    answers:
+        - Non.
+        - Oui, s'il semble continuer de monter.
+        - Oui, si son prix est inférieur à 1$.
+        - Oui, s'il suit le tracé d'un autre coin qui monte fort aussi.
+
+  - question: Qu'est-ce que la 2FA ?
+    answers:
+        - Une méthode d'authentification des utilisateurs offrant une sécurité accrue.
+        - Un coin qui va concurrencer le XRP sur l'échange interbancaire.
+        - Une méthode d'analyse technique spécifique aux cryptos.
+
+  - question: Qu'est-ce qu'un exchange, place de marché ?
+    answers:
+        - Un lieu où je peux trade mes crypto-monnaies.
+        - Un bistrot.
+        - Un magasin d'informatique spécialisé dans le matériel de minage.
+        - Un lieu où je peux discuter de l'évolution des prix avec d'autres trader.
+
+  - question: Une personne qui a l'air de s'y connaître me conseille une monnaie. Qu'est-ce que je fais ?
+    answers:
+        - Je lui demande des sources et informations supplémentaires.
+        - J'en achète dès que ça baisse.
+        - J'en achète avant que ça monte.
+        - Je vais le poster sur d'autres channels.
+
+  - question: Est-ce que je peux faire des calls sur le discord ?
+    answers:
+        - Si je justifie, oui.
+        - Si je suis sûr de moi, oui.
+        - Si j'ai déjà vu quelqu'un le call, oui.
+        - Non.
+
+  - question: Qu'est-ce qu'un système de ponzi ?
+    answers:
+        - Un montage financier frauduleux.
+        - Un système d'exploitation.
+        - Un groupe de monnaie.
+        - Un investissement stable et rentable.
+
+  - question: Qu'est-ce qu'un whitepaper ?
+    answers:
+        - Document qui explique les détails techniques de la monnaie ainsi que son fonctionnement.
+        - Les remerciements sur le site d'une monnaie.
+        - Un type d'exchange pour trade.
+        - Un protocole qui chiffre le papier.
+
+  - question: Qu'est-ce qu'un ASIC ?
+    answers:
+        - Une station de minage spécialisée sur une monnaie
+        - Un coin
+        - Un fragement de Bitcoin
+        - Un système de refroidissement
+
+  - question: Qu'est ce que le proof-of-work/proof-of-stake ?
+    answers:
+        - Deux systèmes de validation des transactions
+        - Deux indicateurs financiers
+        - Deux types d'exchange
