@@ -25,13 +25,13 @@ class Reply(object):
         raise NotImplementedError
 
     async def error(self, text):
-        await self.send(text)
+        return await self.send(text)
 
     async def do_send(self, destination, content, embed=None, fileobj=None, filename=None):
         if fileobj is None:
-            await self.client.send_message(destination, content, embed=embed)
+            return await self.client.send_message(destination, content, embed=embed)
         else:
-            await self.client.send_file(destination, fileobj, content=content, filename=filename)
+            return await self.client.send_file(destination, fileobj, content=content, filename=filename)
 
     async def delete_message(self, message):
         try:
@@ -51,7 +51,8 @@ class DirectReply(Reply):
     async def send(self, text, embed=None, fileobj=None, filename=None):
         if not self.channel.is_private:
             asyncio.ensure_future(self.delete_message(self.message), loop=self.client.loop)
-        await self.do_send(self.user, content=text, embed=embed, fileobj=fileobj, filename=filename)
+        return await self.do_send(self.user, content=text,
+                                  embed=embed, fileobj=fileobj, filename=filename)
 
 
 class MentionReply(Reply):
@@ -63,7 +64,7 @@ class MentionReply(Reply):
     async def send(self, text, embed=None, fileobj=None, filename=None):
         if not self.channel.is_private:
             text = '%s: %s' % (self.user.mention, text)
-        await self.do_send(
+        return await self.do_send(
             self.channel,
             content=text,
             embed=embed,
@@ -77,3 +78,13 @@ class DeleteAndMentionReply(MentionReply):
     async def start(self):
         if not self.channel.is_private:
             asyncio.ensure_future(self.delete_message(self.message), loop=self.client.loop)
+
+    async def error(self, text):
+        message = await self.send(text)
+        if not self.channel.is_private:
+            asyncio.ensure_future(self.delete_after(message, 10), loop=self.client.loop)
+        return message
+
+    async def delete_after(self, message, delay):
+        await asyncio.sleep(delay, loop=self.client.loop)
+        await self.delete_message(message)
