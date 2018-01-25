@@ -29,6 +29,7 @@ def load_group(server, config):
     permissions = config.pop('permissions', None)
     if permissions is not None:
         for entry in permissions:
+            entry = entry.copy()
             name = entry.pop('name')
             try:
                 klass = import_string(name)
