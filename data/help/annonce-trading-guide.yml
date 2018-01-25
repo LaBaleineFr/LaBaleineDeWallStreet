@@ -1,0 +1,88 @@
+type: rich
+color: 15630911
+author:
+    name: La Baleine
+    url: https://www.labaleine.gg/
+    icon_url: https://cdn.discordapp.com/icons/291991078830342144/2033fdc4b1fbdb303676c470ba149ccd.png
+
+fields:
+    - name: Les places de marché
+      inline: no
+      value: |
+        [Kraken](https://www.kraken.com/) : Plateforme d'achat par virement SEPA
+        [Coinbase](https://goo.gl/VTPD4u) : Plateforme d'achat par CB
+        [Binance](https://goo.gl/ikYWUz) : Plateforme d'échange de cryptomonnaie
+        [Kucoin](https://goo.gl/oPRSpz) : Plateforme d'échange de cryptomonnaie
+        [Bittrex](https://bittrex.com/) : Plateforme d'échange de cryptomonnaie
+        [Cex.io](https://goo.gl/5uSLqK) : Plateforme d'achat par CB
+        [Bitfinex](https://www.bitfinex.com/) : Plateforme d'échange de cryptomonnaie
+
+    - name: Actualité et infos [FR]
+      inline: no
+      value: |
+        [Bitcoin.fr](https://bitcoin.fr/)
+        [Blog de la Baleine](https://medium.com/la-baleine)
+        [L'Ethereum en France](https://www.ethereum-france.com/)
+        [Journal du Coin](https://journalducoin.com/)
+        [Canard du coin](https://www.canardcoincoin.com/)
+        [CryptoActu](https://cryptoactu.com/)
+    - name: Actualité et infos [EN]
+      inline: no
+      value: |
+        [CoinTelegraph](https://cointelegraph.com/) : Bitcoin & Ethereum Blockchain News
+        [CoinDesk](https://www.coindesk.com/) : BTC, ETH, NEO, ICO & Cryptocurrency News
+        [CryptoCoinNews](https://www.cryptocoinsnews.com/) : News from the world of cryptocurrencies
+        [Journal du Coin](https://24hcoins.com/) : News feed
+        [TheMerkle](https://themerkle.com/)
+
+    - name: Liens utiles
+      inline: no
+      value: |
+        [CoinMarketCap](https://coinmarketcap.com/) : Index des cryptomonnaies
+        [Blockfolio](https://goo.gl/Li2uJr) : Application Android (IOS dispo)
+        [TabTrader](https://goo.gl/o8C4Hh) : Application IOS (Android dispo)
+        [Cours du Bitcoin](http://bitcointicker.co/)
+        [CryptAlert](https://cryptalert.com/)
+        [Gestion de porte-feuille](https://goo.gl/LLteKF)
+
+    - name: ICO
+      inline: no
+      value: |
+        [Guide pour juger une ICO](https://bitconseil.fr/vente-tokens-analyse-modeles/) : Guide pour juger une ICO
+        [TokenMarket](https://tokenmarket.net/) : Calendrier
+        [IcoAlert](https://www.icoalert.com/) : Calendrier
+        [IcoRating](http://icorating.com/) : Notation
+        [IcoDrops](https://icodrops.com/) : Portail d'ICO
+        [Smith+Crown](https://www.smithandcrown.com/) : Site d'actu sur les ICO
+
+    - name: Analyse technique
+      inline: no
+      value: |
+        [AbcBourse](https://www.abcbourse.com/apprendre/11_lecons_at_intro.html) : 25 leçons d'analyse technique
+        [TradingView](http://tradingview.go2cloud.org/SH1DW) : Outils d'analyse technique bourse + crypto
+        [Coinigy](https://www.coinigy.com/?r=a2359612) : Outils d'analyse crypto uniquement
+
+    - name: Portfolio
+      inline: no
+      value: |
+        [Cryptocompare](https://www.cryptocompare.com/) : Simulation de wallet et + encore
+        [Altpocket]( https://altpocket.io/) : Outils d'analyse technique bourse + crypto
+
+    - name: Wallet physique
+      inline: no
+      value: |
+        [Ledger](https://www.ledgerwallet.com/)
+        [Trezor](https://shop.trezor.io/)
+    - name: Wallet virtuel
+      inline: no
+      value: |
+        [MyEtherWallet](https://www.myetherwallet.com/) : Ethereum & ERC-20
+        [Electrum](https://electrum.org/#home) : Bitcoin
+        [Copay](https://copay.io/) : Bitcoin | :youtube: [Vidéo explicative](https://goo.gl/n5J8kZ)
+        [Jaax](https://jaxx.io/) : Multi-crypto
+
+    - name: Astuces
+      inline: no
+      value: |
+        Les transferts du pauvre : Utiliser le Ripple pour des transferts pas cher
+        La sécurité : Mettre des mots de passe différents ainsi que la 2FA

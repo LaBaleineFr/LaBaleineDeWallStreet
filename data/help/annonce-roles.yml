@@ -1,0 +1,20 @@
+
+type: rich
+color: 15630911
+author:
+    name: La Baleine
+    url: https://www.labaleine.gg/
+    icon_url: https://cdn.discordapp.com/icons/291991078830342144/2033fdc4b1fbdb303676c470ba149ccd.png
+
+title: "Les rôles :"
+fields:
+    - name: Baleine Novice
+      value: C'est votre rôle d'arrivée, le statut de base.
+    - name: Baleine Avancée
+      value: >
+        Elles sont depuis un moment sur le discord et ont fait leur preuves en aidant la communauté.
+        Le seul moyen d'atteindre ce grade est d'aider les gens, il est donc inutile de nous demander.
+    - name: Baleine Bleue
+      value: >
+        Elles sont marque de confiance et ont une très bonne connaissance du trading ou
+        mining et ont grandement aidé la communauté.

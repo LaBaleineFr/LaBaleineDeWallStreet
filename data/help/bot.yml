@@ -1,0 +1,28 @@
+
+type: rich
+color: 15630911
+author:
+    name: La Baleine
+    url: https://www.labaleine.gg/
+    icon_url: https://cdn.discordapp.com/icons/291991078830342144/2033fdc4b1fbdb303676c470ba149ccd.png
+
+description: >
+    Sauf bonne raison, les commandes du bot sont à utiliser dans le chan #bot.
+
+fields:
+    - name: "Conversion de prix"
+      value: |
+        `!conv value ticker [ticker2]`
+        → Convertit un montant dans un autre coin. Si l'autre coin n'est pas précisé, convertit en fiat.
+    - name: "Cotation d'un coin"
+      value: |
+        `!price ticker [exchange]`
+        → Affiche le prix actuel du coin ou de la paire. Les exchanges gérés sont bitfinex, bittrex, cryptopia. Si l'exchange n'est pas précisé, un est choisi automatiquement.
+    - name: "Aide et définitions"
+      value: |
+        `!help subject`
+        → Affiche l'aide sur un sujet. Par exemple, `!help bot` affiche ce message.
+
+footer:
+    text:
+        "Les commandes du bot sont à utiliser dans le chan #bot."

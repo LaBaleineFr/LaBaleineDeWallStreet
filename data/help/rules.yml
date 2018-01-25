@@ -1,4 +1,3 @@
-
 type: rich
 color: 15630911
 author:
@@ -6,23 +5,25 @@ author:
     url: https://www.labaleine.gg/
     icon_url: https://cdn.discordapp.com/icons/291991078830342144/2033fdc4b1fbdb303676c470ba149ccd.png
 
+title: "Règles du Discord de la Baleine :"
+
 fields:
-    - name: "Quelques règles du Discord de la Baleine :"
+    - name: ":pencil: Contenu"
       value: |
-        — Pas de pubs sans une autorisation des admins
-        — Courtoisie et savoir-vivre
-        — Les calls **SANS ARGUMENT** seront suivis par un avertissement et ensuite un bannissement
-        — Pensez aux gens qui vont lire et mettez-vous à leur place
-        — Le flood et le troll sont interdits
-        — Les commandes de prix, conv, etc. du bot sont uniquement autorisées dans le chan #bot
-        — Les liens de parrainage sont interdits
-    - name: "Commandes du bot :"
+        - La courtoisie et le savoir-vivre sont de rigueur.
+        - Envoyez des messages utiles et qualitatifs, n'abusez pas de la touche entrée.
+        - Pensez à supprimer ou modifier votre message si vous vous trompez.
+        - Les réactions insultantes (type :middle_finger:) seront sanctionnées.
+
+        - Ne demandez pas où investir, nous ne sommes pas devins.
+        - Les calls non argumentés seront sanctionnés.
+
+    - name: ":octagonal_sign: Publicité"
       value: |
-        → **!conv** value ticker [ticker2]
-            Convertit un montant dans un autre coin.
-
-        → **!help** subject
-            Affiche l'aide sur un sujet
-
-        → **!price** ticker [market]
-            Affiche le prix actuel du coin ou de la paire
+        - Toute publicité est interdite, lien Discord compris.
+        - Les liens de parrainage sont interdits.
+        - La promotion de groupes de pump est interdite.
+        - Toute vente est interdite, sauf les Baleines avancées qui peuvent vendre du matériel de minage.
+    - name: ":warning: Important"
+      value: |
+        - **Aucun des avis sur ce discord ne constitue un conseil d'investissement. Chacun prend ses décions et en est le seul responsable.**
