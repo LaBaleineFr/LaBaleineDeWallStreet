@@ -21,6 +21,11 @@ commands:
           channels: [bot, techdev]
     - name: Help
       commands: [baleine.plugins.help]
+    - name: Moderation
+      commands: [baleine.plugins.moderation]
+      permissions:
+        - name: HasRolePermission
+          roles: [Modérateur trading, Modérateur minage]
     - name: Pricetools
       commands: [baleine.plugins.convert, baleine.plugins.price]
 
