@@ -7,15 +7,15 @@ class Id(command.Command):
     name = 'idof'
 
     errors = {
-        'needs_server': 'only usable on a server',
+        'needs_guild': 'only usable on a guild',
         'usage': '{name} type name',
         'unknown_type': 'known types: {types}',
         'not_found': '{type} {name} not found',
     }
 
     async def execute(self, message, args):
-        if message.server is None:
-            await self.error('needs_server')
+        if message.guild is None:
+            await self.error('needs_guild')
             return
         if len(args) != 2:
             await self.error('usage', name=self.name)
@@ -24,9 +24,9 @@ class Id(command.Command):
         kind, name = args[0].lower(), args[1].lower()
 
         collections = {
-            'channel': message.server.channels,
-            'member': message.server.members,
-            'role': message.server.roles,
+            'channel': message.guild.channels,
+            'member': message.guild.members,
+            'role': message.guild.roles,
         }
         items = collections.get(kind)
 

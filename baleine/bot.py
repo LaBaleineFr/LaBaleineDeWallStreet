@@ -28,6 +28,7 @@ class Bot(discord.Client):
         self.settings = settings
         self.plugins = self.load_plugins(settings)
         self.private_chats = {}
+        self.initialized = False
 
     def load_plugins(self, settings):
         """ Load plugins from the 'plugins' key in settings dictionary """
@@ -52,17 +53,22 @@ class Bot(discord.Client):
             return chat
 
     async def on_ready(self):
+        if self.initialized:
+            logger.info('Reconnected as %s [%s]', self.user.name, self.user.id)
+            return
+        self.initialized = True
+
         logger.info('Connected as %s [%s]', self.user.name, self.user.id)
-        for server in self.servers:
-            logger.info('    -> on server %s [%s]', server.name, server.id)
-            for channel in server.channels:
+        for guild in self.guilds:
+            logger.info('    -> on guild %s [%s]', guild.name, guild.id)
+            for channel in guild.channels:
                 logger.debug('      - channel %s [%s]', channel.name, channel.id)
-            for role in server.roles:
+            for role in guild.roles:
                 logger.debug('      - role %s [%s]', role.name, role.id)
 
-            # Load bot command engine, one for each server we run on
-            dispatcher = CommandDispatcher(server)
-            dispatcher.groups = [load_group(server, command)
+            # Load bot command engine, one for each guild we run on
+            dispatcher = CommandDispatcher(guild)
+            dispatcher.groups = [load_group(guild, command)
                                  for command in self.settings.commands]
             self.plugins.append(dispatcher)
 
@@ -73,9 +79,10 @@ class Bot(discord.Client):
             info = sys.exc_info()
             logger.error('%s in %s event: %s', info[0].__name__, event, info[1])
 
-    on_channel_create = passthrough('on_channel_create')
-    on_channel_delete = passthrough('on_channel_delete')
-    on_channel_update = passthrough('on_channel_update')
+    on_guild_channel_create = passthrough('on_guild_channel_create')
+    on_guild_channel_delete = passthrough('on_guild_channel_delete')
+    on_guild_channel_update = passthrough('on_guild_channel_update')
+    on_guild_channel_pins_update = passthrough('on_guild_channel_pins_update')
     on_group_join = passthrough('on_group_join')
     on_group_remove = passthrough('on_group_remove')
     on_member_join = passthrough('on_member_join')
@@ -86,18 +93,22 @@ class Bot(discord.Client):
     on_message = passthrough('on_message')
     on_message_delete = passthrough('on_message_delete')
     on_message_edit = passthrough('on_message_edit')
+    on_private_channel_create = passthrough('on_private_channel_create')
+    on_private_channel_delete = passthrough('on_private_channel_delete')
+    on_private_channel_update = passthrough('on_private_channel_update')
+    on_private_channel_pins_update = passthrough('on_private_channel_pins_update')
     on_reaction_add = passthrough('on_reaction_add')
     on_reaction_clear = passthrough('on_reaction_clear')
     on_reaction_remove = passthrough('on_reaction_remove')
     on_resumed = passthrough('on_resumed')
-    on_server_available = passthrough('on_server_available')
-    on_server_join = passthrough('on_server_join')
-    on_server_remove = passthrough('on_server_remove')
-    on_server_unavailable = passthrough('on_server_unavailable')
-    on_server_update = passthrough('on_server_update')
-    on_server_emojis_update = passthrough('on_server_emojis_update')
-    on_server_role_create = passthrough('on_server_role_create')
-    on_server_role_delete = passthrough('on_server_role_delete')
-    on_server_role_update = passthrough('on_server_role_update')
+    on_guild_available = passthrough('on_guild_available')
+    on_guild_join = passthrough('on_guild_join')
+    on_guild_remove = passthrough('on_guild_remove')
+    on_guild_unavailable = passthrough('on_guild_unavailable')
+    on_guild_update = passthrough('on_guild_update')
+    on_guild_emojis_update = passthrough('on_guild_emojis_update')
+    on_guild_role_create = passthrough('on_guild_role_create')
+    on_guild_role_delete = passthrough('on_guild_role_delete')
+    on_guild_role_update = passthrough('on_guild_role_update')
     on_typing = passthrough('on_typing')
     on_voice_state_update = passthrough('on_voice_state_update')

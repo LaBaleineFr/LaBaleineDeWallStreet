@@ -1,22 +1,23 @@
 import asyncio
+import discord
 import shlex
 
 
 class CommandDispatcher(object):
     """ Bot plugin that dispatches user commands to command groups.
-        baleine.bot.Bot automatically creates one per server.
+        baleine.bot.Bot automatically creates one per guild.
     """
 
     prefixes = tuple('!#')
     delete_errors_after = 5
 
-    def __init__(self, server):
-        self.server = server
+    def __init__(self, guild):
+        self.guild = guild
         self.groups = []
 
     async def on_message(self, client, message):
-        # Filter out messages to other servers
-        if message.server and message.server.id != self.server.id:
+        # Filter out messages to other guilds
+        if message.guild and message.guild.id != self.guild.id:
             return
 
         # Filter non-commands early
@@ -42,16 +43,12 @@ class CommandDispatcher(object):
 
     async def handle_basic_error(self, client, message, text):
         # Send the error
-        if not message.channel.is_private:
+        if not isinstance(message.channel, discord.DMChannel):
             text = '%s: %s' % (message.author.mention, text)
-        answer = await client.send_message(message.channel, text)
+        answer = await message.channel.send(text)
 
         # Wait for a bit and delete the error so as not to pollute the channel
-        if not message.channel.is_private and self.delete_errors_after is not None:
+        if isinstance(message.channel, discord.abc.GuildChannel) and self.delete_errors_after is not None:
             await asyncio.sleep(self.delete_errors_after, client.loop)
-            await asyncio.gather(
-                client.delete_message(message),
-                client.delete_message(answer),
-                return_exceptions=True,
-                loop=client.loop
-            )
+            await asyncio.gather(message.delete(), answer.delete(),
+                                 return_exceptions=True, loop=client.loop)

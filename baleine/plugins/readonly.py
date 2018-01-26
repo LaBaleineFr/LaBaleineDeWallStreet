@@ -15,7 +15,7 @@ class ReadOnly(object):
             channels = config['channels']
         except KeyError:
             raise baleine.bot.ConfigError('ReadOnly plugin requires a channels list')
-        self.channels = [str(channel) for channel in config['channels']]
+        self.channels = [int(channel) for channel in config['channels']]
 
         self.whitelist = [item.lower() for item in config.get('whitelist') or []]
 
@@ -25,12 +25,12 @@ class ReadOnly(object):
             not any(role.name.lower() in self.whitelist for role in message.author.roles)):
 
             # Fire and forget, we don't want this to delay command execution
-            asyncio.ensure_future(self.delete_message(client, message), loop=client.loop)
+            asyncio.ensure_future(self.delete_message(message), loop=client.loop)
 
-    async def delete_message(self, client, message):
+    async def delete_message(self, message):
         try:
-            await client.delete_message(message)
-        except discord.errors.NotFound:
+            await message.delete()
+        except discord.NotFound:
             pass # this is okay, message is already deleted
-        except discord.errors.HTTPException as exc:
+        except discord.HTTPException as exc:
             logger.warning('could not delete message in channel %s: %s' % (message.channel.name, exc))

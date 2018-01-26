@@ -4,8 +4,8 @@ from baleine.exception import ConfigurationError
 from baleine.util import import_string, find_channel
 
 
-def load_group(server, config):
-    """ Create a CommandGroup for given server using given configuraiton dictionary """
+def load_group(guild, config):
+    """ Create a CommandGroup for given guild using given configuraiton dictionary """
 
     config = config.copy()
     group = CommandGroup(config.pop('name'))
@@ -18,7 +18,7 @@ def load_group(server, config):
 
     channels = config.pop('channels', None)
     if channels is not None:
-        group.channels = map(find_channel(server, channel).id for channel in channels)
+        group.channels = map(find_channel(guild, channel).id for channel in channels)
 
     prefixes = config.pop('prefixes', None)
     if prefixes is not None:
@@ -38,7 +38,7 @@ def load_group(server, config):
                     klass = import_string('baleine.command.permission.%s' % name)
                 except ImportError:
                     raise ConfigurationError('Permission class %s not found' % name)
-            group.permissions.append(klass(server, **entry))
+            group.permissions.append(klass(guild, **entry))
 
     # Reply is a class that we must import
 

@@ -9,9 +9,9 @@ from baleine import emoji
 
 class Parser(object):
     """ Simple collection of parsers for all embed elements """
-    def __init__(self, server=None):
-        self.server = server
-        self.emoji_dict = None if server is None else emoji.build_emoji_dict(server)
+    def __init__(self, guild=None):
+        self.guild = guild
+        self.emoji_dict = None if guild is None else emoji.build_emoji_dict(guild)
 
     def from_dict(self, data):
         embed = discord.Embed()

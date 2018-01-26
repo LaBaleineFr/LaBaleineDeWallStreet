@@ -149,7 +149,7 @@ questions:
         - "Aucune banque ne voudrait s'en servir à cause des régulations."
         - "Il a été conçu pour une utilisation militaire et se prête mal à un usage grand public."
 
-  - question: Beaucoup de transactions Bitcoin sont en attente, est-ce que :
+  - question: "Beaucoup de transactions Bitcoin sont en attente, est-ce que :"
     answers:
         - "Les frais de transaction montent, car c'est un système d'enchères."
         - "Les frais de transaction montent, car les mineurs revoient leur tarif à la hausse."

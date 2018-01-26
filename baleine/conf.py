@@ -1,4 +1,3 @@
-import importlib
 import yaml
 
 class Settings(object):

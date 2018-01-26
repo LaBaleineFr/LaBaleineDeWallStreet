@@ -4,6 +4,7 @@ A command group is a set of commands that can be attached to a dispatcher.
 It watches its designated channels and runs commands it recognizes.
 """
 import asyncio
+import discord
 import logging
 import shlex
 from baleine.exception import PermissionDenied
@@ -30,11 +31,11 @@ class CommandGroup(object):
 
     async def on_command(self, client, message, name, args):
         # Ignore direct messages unless they are allowed
-        if not self.allow_direct and message.channel.is_private:
+        if not self.allow_direct and isinstance(message.channel, discord.abc.PrivateChannel):
             return
 
         # If a channel list is specified ignore all messages in other chans
-        if (self.channels is not None and not message.channel.is_private
+        if (self.channels is not None and isinstance(message.channel, discord.abc.GuildChannel)
                                       and message.channel.id not in self.channels):
             return
 

@@ -11,7 +11,7 @@ class Reply(object):
     def __init__(self, client, message):
         self.client = client
         self.message = message
-        self.server = message.server
+        self.guild = message.guild
         self.channel = message.channel
         self.user = message.author
 
@@ -27,18 +27,12 @@ class Reply(object):
     async def error(self, text):
         return await self.send(text)
 
-    async def do_send(self, destination, content, embed=None, fileobj=None, filename=None):
-        if fileobj is None:
-            return await self.client.send_message(destination, content, embed=embed)
-        else:
-            return await self.client.send_file(destination, fileobj, content=content, filename=filename)
-
     async def delete_message(self, message):
         try:
-            await self.client.delete_message(message)
-        except discord.errors.NotFound:
+            await message.delete()
+        except discord.NotFound:
             pass
-        except discord.errors.HTTPException as exc:
+        except discord.HTTPException as exc:
             logger.warning('could not delete message in channel %s: %s' % (message.channel.name, exc))
 
 
@@ -48,11 +42,10 @@ class DirectReply(Reply):
     async def notify(self):
         await self.client.send_typing(self.user)
 
-    async def send(self, text, embed=None, fileobj=None, filename=None):
-        if not self.channel.is_private:
+    async def send(self, *args, **kwargs):
+        if isinstance(self.channel, discord.abc.GuildChannel):
             asyncio.ensure_future(self.delete_message(self.message), loop=self.client.loop)
-        return await self.do_send(self.user, content=text,
-                                  embed=embed, fileobj=fileobj, filename=filename)
+        return await self.user.send(*args, **kwargs)
 
 
 class MentionReply(Reply):
@@ -61,27 +54,21 @@ class MentionReply(Reply):
     async def notify(self):
         await self.client.send_typing(self.user)
 
-    async def send(self, text, embed=None, fileobj=None, filename=None):
-        if not self.channel.is_private:
+    async def send(self, text, *args, **kwargs):
+        if isinstance(self.channel, discord.abc.GuildChannel):
             text = '%s: %s' % (self.user.mention, text)
-        return await self.do_send(
-            self.channel,
-            content=text,
-            embed=embed,
-            fileobj=fileobj,
-            filename=filename,
-        )
+        return await self.channel.send(text, *args, **kwargs)
 
 class DeleteAndMentionReply(MentionReply):
     """ Reply object that send answers back through originating channel """
 
     async def start(self):
-        if not self.channel.is_private:
+        if isinstance(self.channel, discord.abc.GuildChannel):
             asyncio.ensure_future(self.delete_message(self.message), loop=self.client.loop)
 
     async def error(self, text):
         message = await self.send(text)
-        if not self.channel.is_private:
+        if isinstance(self.channel, discord.abc.GuildChannel):
             asyncio.ensure_future(self.delete_after(message, 10), loop=self.client.loop)
         return message
 

@@ -20,11 +20,14 @@ class PrivateChat(object):
             Calling task must have acquired ownership of the channel first.
         """
         assert self.task == asyncio.Task.current_task()
-        return await self.client.wait_for_message(timeout=timeout, author=self.user, channel=self.channel)
+
+        def check(msg):
+            return msg.channel == self.channel and msg.author == self.user
+        return await self.client.wait_for('message', check=check, timeout=timeout)
 
     async def send(self, *args, **kwargs):
         """ Send a message to the user """
-        return await self.client.send_message(self.user, *args, **kwargs)
+        return await self.user.send(*args, **kwargs)
 
     async def __aenter__(self):
         """ Acquire ownership of the private chat """
@@ -32,7 +35,7 @@ class PrivateChat(object):
             raise exception.BusyError()
         self.task = asyncio.Task.current_task()
         if not self.channel:
-            self.channel = await self.client.start_private_message(self.user)
+            self.channel = await self.user.create_dm()
         return self
 
     async def __aexit__(self, exc_type, exc_value, traceback):

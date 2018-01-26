@@ -1,8 +1,8 @@
 
-def build_emoji_dict(server):
-    my_roles = set(server.me.roles)
+def build_emoji_dict(guild):
+    my_roles = set(guild.me.roles)
     return dict(
-        (emoji.name, emoji) for emoji in server.emojis
+        (emoji.name, emoji) for emoji in guild.emojis
         if not emoji.roles or my_roles.intersection(emoji.roles)
     )
 

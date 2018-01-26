@@ -30,22 +30,40 @@ def http_session():
 
 # ============================================================================
 
-def find_channel(server, text):
+def find_channel(guild, text):
     """ Given a string that may be either a channel name or id, find the channel """
-    text = text.lower()
-    for channel in server.channels:
-        if text in (channel.name.lower(), channel.id):
-            return channel
-    raise ValueError('Channel %s not found' % text)
+    try:
+        idval = int(text)
+    except ValueError:
+        pass
+    else:
+        try:
+            return next(filter(lambda chan: chan.id == idval, guild.channels))
+        except StopIteration:
+            pass
+    try:
+        text = text.lower()
+        return next(filter(lambda chan: chan.name.lower() == text, guild.channels))
+    except StopIteration:
+        raise ValueError('Channel %s not found' % text)
 
 
-def find_role(server, text):
+def find_role(guild, text):
     """ Given a string that may be either a role name or id, find the role """
-    text = text.lower()
-    for role in server.roles:
-        if text in (role.name.lower(), role.id):
-            return role
-    raise ValueError('Role %s not found' % text)
+    try:
+        idval = int(text)
+    except ValueError:
+        pass
+    else:
+        try:
+            return next(filter(lambda role: role.id == idval, guild.roles))
+        except StopIteration:
+            pass
+    try:
+        text = text.lower()
+        return next(filter(lambda role: role.name.lower() == text, guild.roles))
+    except StopIteration:
+        raise ValueError('Role %s not found' % text)
 
 # ============================================================================
 

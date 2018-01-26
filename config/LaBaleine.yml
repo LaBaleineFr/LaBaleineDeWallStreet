@@ -34,7 +34,7 @@ plugins:
     - name: baleine.plugins.readonly.ReadOnly
       channels:
         - 386061346342436864        # accueil sur le server officiel
-        - 399403543880138755        # general sur le serveur de test
+        - 405775677107994655        # general sur le serveur de test
       whitelist: [administrateur, modérateur trading, modérateur minage]
 
 barrier:

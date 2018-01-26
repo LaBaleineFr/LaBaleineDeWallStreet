@@ -66,7 +66,7 @@ class Barrier(command.Command):
     default_timeout = 600   # in seconds
 
     errors = {
-        'needs_server': 'Commande utilisable depuis un serveur uniquement.',
+        'needs_guild': 'Commande utilisable depuis un serveur uniquement.',
         'usage': 'Quel quizz voulez-vous ?',
         'busy': 'Je suis déjà en train de vous parler.',
         'dm_permission_denied': 'Je dois pouvoir vous envoyer un DM. '
@@ -88,9 +88,9 @@ class Barrier(command.Command):
     }
 
     async def execute(self, message, args):
-        # Role attribution will need a server to run on
-        if message.server is None:
-            await self.error('needs_server')
+        # Role attribution will need a guild to run on
+        if message.guild is None:
+            await self.error('needs_guild')
             return
 
         if len(args) != 1:
@@ -111,17 +111,17 @@ class Barrier(command.Command):
         except exception.BusyError:
             await self.error('busy')
             return
-        except discord.errors.Forbidden:
+        except discord.Forbidden:
             await self.error('dm_permission_denied')
             return
 
         if success:
             role = quizz.get('grant_role', None)
             if role is not None:
-                role = util.find_role(message.server, role)
+                role = util.find_role(message.guild, role)
                 logger.info('granting role {role.name} to {user.name} [{user.id}]'.format(
                              role=role, user=message.author))
-                await self.client.add_roles(message.author, role)
+                await message.author.add_roles(role)
 
     async def run_quizz(self, chat, quizz):
         """ Run given quizz in the (owned) chat session """
@@ -197,7 +197,7 @@ class Barrier(command.Command):
 
         # Show a reaction, if the feature is enabled
         if quizz.get('feedback', False) and reply is not None:
-            await self.client.add_reaction(reply, '\U0001F44D' if is_correct else '\U0001F44E')
+            await reply.add_reaction('\U0001F44D' if is_correct else '\U0001F44E')
 
         return is_correct
 
