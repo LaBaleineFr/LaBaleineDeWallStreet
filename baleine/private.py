@@ -23,7 +23,10 @@ class PrivateChat(object):
 
         def check(msg):
             return msg.channel == self.channel and msg.author == self.user
-        return await self.client.wait_for('message', check=check, timeout=timeout)
+        try:
+            return await self.client.wait_for('message', check=check, timeout=timeout)
+        except asyncio.TimeoutError:
+            return None
 
     async def send(self, *args, **kwargs):
         """ Send a message to the user """
