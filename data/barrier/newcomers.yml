@@ -18,8 +18,6 @@ success: |
     Bravo ! :thumbsup:
     Vous avez réussi le test. Bienvenue sur La Baleine, prenez le temps de bien lire les règles et au plaisir de vous lire très vite !
 questions:
-  - question: Je veux transférer 100€ de Kraken à Bittrex, quel est le coin le moins cher ?
-    answers: [Ripple, Bitcoin, Ethereum, Dash, Augur]
 
   - question: Combien de satoshis faut-il pour faire un bitcoin ?
     mode: text
