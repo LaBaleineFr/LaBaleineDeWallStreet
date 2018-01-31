@@ -1,13 +1,13 @@
 import asyncio
 from collections import namedtuple
 
-CandleData = namedtuple('CandleData', 'time open close low high volume')
-OrderData = namedtuple('OrderData', 'price amount')
-TickerData = namedtuple('TickerData', 'last bid ask volume change')
-
 
 class Exchange(object):
     """ Abstract class  for reference - exchange plugins should derive from it """
+    CandleData = namedtuple('CandleData', 'time open close low high volume')
+    OrderData = namedtuple('OrderData', 'price amount')
+    TickerData = namedtuple('TickerData', 'last bid ask volume change')
+
     name = None     # Lowercase name for the exchange
 
     async def get_pairs(self):

@@ -43,8 +43,8 @@ class BittrexExchange(exchange.Exchange):
 
         data = await self.fetch(self.CHART_URL.format(tickers=pair, ut=ut_param, number=number))
         return [
-            exchange.CandleData(time=item['T'], open=item['O'], close=item['C'],
-                                low=item['L'], high=item['H'], volume=item['V'])
+            self.CandleData(time=item['T'], open=item['O'], close=item['C'],
+                            low=item['L'], high=item['H'], volume=item['V'])
             for item in data[-number:]
         ]
 
@@ -52,15 +52,15 @@ class BittrexExchange(exchange.Exchange):
         """ Return a 2-tuple of (bid, ask) data frames """
         data = await self.fetch(self.BOOK_URL.format(tickers=pair, depth=depth))
         return (
-            [exchange.OrderData(price=item['Rate'], amount=item['Quantity']) for item in data['buy'][:depth]],
-            [exchange.OrderData(price=item['Rate'], amount=item['Quantity']) for item in data['sell'][:depth]]
+            [self.OrderData(price=item['Rate'], amount=item['Quantity']) for item in data['buy'][:depth]],
+            [self.OrderData(price=item['Rate'], amount=item['Quantity']) for item in data['sell'][:depth]]
         )
 
     async def get_prices(self, pair):
         """ Return a TickerData instance """
         data = await self.fetch(self.TICKER_URL.format(tickers=pair))
 
-        return exchange.TickerData(
+        return self.TickerData(
             last=data[0]['Last'],
             bid=data[0]['Bid'],
             ask=data[0]['Ask'],

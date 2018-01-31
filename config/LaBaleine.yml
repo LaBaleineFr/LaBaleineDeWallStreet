@@ -4,10 +4,10 @@ debug: no
 help_path: data/help
 
 modules:
-    - baleine.exchanges.bitfinex
-    - baleine.exchanges.bittrex
-    - baleine.exchanges.cryptopia
-    - baleine.exchanges.forex
+    - baleine.exchange.bitfinex
+    - baleine.exchange.bittrex
+    - baleine.exchange.cryptopia
+    - baleine.exchange.forex
 
 commands:
     - name: Barrier

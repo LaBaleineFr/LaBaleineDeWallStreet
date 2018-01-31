@@ -46,8 +46,8 @@ class CryptopiaExchange(exchange.Exchange):
         volumes = dict((int(item['x']), item['y']) for item in data['Volume'])
 
         return [
-            exchange.CandleData(time=item[0], open=item[1], close=item[4],
-                                low=item[3], high=item[2], volume=volumes.get(int(item[0])))
+            self.CandleData(time=item[0], open=item[1], close=item[4],
+                            low=item[3], high=item[2], volume=volumes.get(int(item[0])))
             for item in data['Candle'][-number:]
         ]
 
@@ -55,14 +55,14 @@ class CryptopiaExchange(exchange.Exchange):
         """ Return a 2-tuple of (bid, ask) data frames """
         data = await self.fetch(self.BOOK_URL.format(tickers=pair, depth=depth))
         return (
-            [exchange.OrderData(price=item['Price'], amount=item['Volume']) for item in data['Sell']],
-            [exchange.OrderData(price=item['Price'], amount=item['Volume']) for item in data['Buy']],
+            [self.OrderData(price=item['Price'], amount=item['Volume']) for item in data['Sell']],
+            [self.OrderData(price=item['Price'], amount=item['Volume']) for item in data['Buy']],
         )
 
     async def get_prices(self, pair):
         """ Return a TickerData instance """
         data = await self.fetch(self.TICKER_URL.format(tickers=pair))
-        return exchange.TickerData(
+        return self.TickerData(
             last=data['LastPrice'],
             bid=data['BidPrice'],
             ask=data['AskPrice'],

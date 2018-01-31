@@ -31,7 +31,7 @@ class ForexExchange(exchange.Exchange):
         else:
             data = self._data
 
-        return exchange.TickerData(
+        return self.TickerData(
             last=data[pair[1]],
             bid=data[pair[1]],
             ask=data[pair[1]],

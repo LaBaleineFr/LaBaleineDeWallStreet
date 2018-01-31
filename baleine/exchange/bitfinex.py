@@ -53,8 +53,8 @@ class BitfinexExchange(exchange.Exchange):
 
         data = await self.fetch(self.CHART_URL.format(tickers=pair, ut=ut_param, number=number))
         return [
-            exchange.CandleData(time=item[0], open=item[1], close=item[2],
-                                low=item[4], high=item[3], volume=item[5])
+            self.CandleData(time=item[0], open=item[1], close=item[2],
+                            low=item[4], high=item[3], volume=item[5])
             for item in data[-number:]
         ]
 
@@ -63,15 +63,15 @@ class BitfinexExchange(exchange.Exchange):
         data = await self.fetch(self.BOOK_URL.format(tickers=pair, depth=100))
 
         return (
-            [exchange.OrderData(price=item[0], amount=item[2]) for item in data if item[2] > 0],
-            [exchange.OrderData(price=item[0], amount=-item[2]) for item in data if item[2] < 0],
+            [self.OrderData(price=item[0], amount=item[2]) for item in data if item[2] > 0],
+            [self.OrderData(price=item[0], amount=-item[2]) for item in data if item[2] < 0],
         )
 
     async def get_prices(self, pair):
         """ Return a TickerData instance """
         data = await self.fetch(self.TICKER_URL.format(tickers=pair))
 
-        return exchange.TickerData(
+        return self.TickerData(
             last=data[6],
             bid=data[0],
             ask=data[2],
